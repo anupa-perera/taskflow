@@ -1,0 +1,15 @@
+# Local Postgres. The master user runs migrations; the API connects as taskflow_app.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: taskflow
+      POSTGRES_USER: taskflow_admin
+      POSTGRES_PASSWORD: local-admin-password
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U taskflow_admin -d taskflow']
+      interval: 2s
+      timeout: 3s
+      retries: 15
