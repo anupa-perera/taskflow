@@ -40,12 +40,9 @@ const ConfigSchema = Type.Object({
   ...databaseProperties,
   HOST: Type.String({ default: '0.0.0.0' }),
   PORT: tcpPort(DEFAULT_HTTP_PORT),
-  LOG_LEVEL: Type.Union(
-    ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'].map((level) =>
-      Type.Literal(level),
-    ),
-    { default: 'info' },
-  ),
+  LOG_LEVEL: Type.Enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'], {
+    default: 'info',
+  }),
   // Peak tasks (including deployment overlap) x DB_POOL_MAX must stay below max_connections.
   DB_POOL_MAX: Type.Integer({ minimum: 1, maximum: MAX_POOL_SIZE, default: DEFAULT_POOL_SIZE }),
   SHUTDOWN_TIMEOUT_MS: Type.Integer({
