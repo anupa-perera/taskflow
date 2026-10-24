@@ -1,0 +1,12 @@
+# Accepted security exceptions. Each one is scoped to specific paths, explains why it is accepted,
+# and expires so it must be re-decided rather than forgotten. Paths are relative to the repo root.
+misconfigurations:
+  - id: AWS-0132
+    paths:
+      - terraform/bootstrap/main.tf
+    statement: >-
+      Terraform state bucket uses SSE-S3 rather than a customer-managed KMS key. The bucket is
+      private, denies non-TLS requests and is readable only by the deploying identities, so a
+      separate kms:Decrypt permission adds little for a single-operator project. Revisit if more
+      principals gain read access to the bucket. See ADR 0004.
+    expired_at: 2027-04-24
