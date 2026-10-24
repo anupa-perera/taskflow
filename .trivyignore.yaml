@@ -10,3 +10,14 @@ misconfigurations:
       separate kms:Decrypt permission adds little for a single-operator project. Revisit if more
       principals gain read access to the bucket. See ADR 0004.
     expired_at: 2027-04-24
+
+  - id: AWS-0104
+    paths:
+      - terraform/modules/ecs-cluster/main.tf
+    statement: >-
+      ECS hosts need outbound HTTPS to public AWS endpoints (ECS, ECR, SSM, CloudWatch, STS) and
+      package repositories. Egress is TCP 443 only, from private subnets through the NAT gateway,
+      with no inbound rules; task security groups are restricted to RDS and do not use this rule.
+      Interface VPC endpoints for every service would cost about $5/day, more than the rest of the
+      stack. Upgrade path: interface endpoints or an egress firewall with a domain allow-list.
+    expired_at: 2027-04-24
