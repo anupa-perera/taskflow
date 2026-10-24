@@ -4,24 +4,28 @@ import { createPool } from './db.js';
 
 const config = loadConfig();
 const pool = createPool(config);
-const app = buildApp({ config, pool });
+const app = await buildApp({ config, pool });
 
-// An idle client losing its connection (e.g. RDS failover) emits here; unhandled, it crashes the process.
+// Unhandled, an idle client's connection loss (e.g. RDS failover) crashes the process.
 pool.on('error', (error) => {
   app.log.error({ err: error }, 'idle database client error');
 });
 
 let shuttingDown = false;
 
-// ECS deregisters the task from the ALB and waits out the deregistration delay *before* sending
-// SIGTERM, so no new traffic arrives here; we only need to finish in-flight work within stopTimeout.
+// ECS deregisters the task from the ALB before SIGTERM, so only in-flight requests remain (ADR 0002).
 async function shutdown(signal: NodeJS.Signals): Promise<void> {
   if (shuttingDown) return;
   shuttingDown = true;
   app.log.info({ signal }, 'shutdown started');
+  // If draining hangs, fail loudly before ECS SIGKILLs us silently.
+  setTimeout(() => {
+    app.log.error({ timeoutMs: config.SHUTDOWN_TIMEOUT_MS }, 'shutdown timed out');
+    process.exit(1);
+  }, config.SHUTDOWN_TIMEOUT_MS).unref();
   try {
-    await app.close(); // stops accepting connections, waits for in-flight requests
-    await pool.end(); // then releases database connections
+    await app.close();
+    await pool.end();
     app.log.info('shutdown complete');
     process.exit(0);
   } catch (error) {

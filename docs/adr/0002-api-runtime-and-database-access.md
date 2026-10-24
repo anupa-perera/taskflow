@@ -16,16 +16,20 @@ in AWS: health checks, shutdown during deployments, schema migrations, database 
 2. **Graceful shutdown.** ECS deregisters a task from the target group and waits out the
    deregistration delay before sending `SIGTERM`. On `SIGTERM` the app therefore closes the HTTP
    server immediately (finishing in-flight requests), then ends the database pool, then exits.
-   There is no "flip to unhealthy and wait" step.
+   There is no "flip to unhealthy and wait" step. A hard deadline (`SHUTDOWN_TIMEOUT_MS`, at most
+   1 s below the ECS `stopTimeout`) exits with a logged error if draining hangs.
 3. **Migrations run as a separate one-off ECS task** in the pipeline's deploy stage, before
    `update-service`, using the RDS master credentials. The deploy fails if the migration task exits
-   non-zero. Migrations must stay backward-compatible because old and new tasks overlap during a
-   rolling deployment.
+   non-zero. A session-level advisory lock spans both the migrations and role provisioning, so
+   concurrent runs queue rather than race. Migrations must stay backward-compatible because old and
+   new tasks overlap during a rolling deployment, and an applied migration's file is never edited or
+   renamed: the migrations table identifies it by file name.
 4. **The application connects as a restricted role** (`taskflow_app`, CRUD on application tables
    only), created by the migrations. The app never receives the master credentials.
 5. **TLS to RDS is on by default** and verifies the server certificate against the bundled RDS CA.
    Only local development disables it.
-6. **Connection pool is bounded** (`DB_POOL_MAX`, connect timeout, statement timeout).
+6. **Connection pool is bounded** (`DB_POOL_MAX`, connect timeout, a server-side statement timeout
+   and a slightly longer client-side query timeout for stalled networks).
 7. **Errors use RFC 9457** `application/problem+json` from one central error handler.
 
 ## Consequences
