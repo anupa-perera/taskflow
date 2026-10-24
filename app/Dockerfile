@@ -32,6 +32,9 @@ ENV DB_SSL_CA_FILE=/app/rds-global-bundle.pem
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY package.json ./
+# Explicit even though the base defaults to it, so swapping the base image cannot make us root.
+# Numeric, so orchestrators can verify non-root without resolving a user name.
+USER 65532:65532
 EXPOSE ${APP_PORT}
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
     CMD ["/nodejs/bin/node", "dist/healthcheck.js"]
