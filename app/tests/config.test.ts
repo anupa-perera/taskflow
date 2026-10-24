@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig, loadMigrateConfig } from '../src/config.js';
 
+// Non-ASCII but invisible, the kind of character that breaks SCRAM without SASLprep.
+const NON_BREAKING_SPACE = String.fromCharCode(0xa0);
+
 const REQUIRED_DB_ENV = {
   DB_HOST: 'localhost',
   DB_NAME: 'taskflow',
@@ -76,9 +79,23 @@ describe('loadMigrateConfig', () => {
     expect(config.APP_DB_USER).toBe('taskflow_app');
   });
 
+  it('reports a non-ASCII password without echoing it', () => {
+    const secret = `hunter2-${'x'.repeat(16)}${NON_BREAKING_SPACE}`;
+    let message = '';
+    try {
+      loadMigrateConfig({ ...REQUIRED_DB_ENV, APP_DB_PASSWORD: secret });
+    } catch (error) {
+      message = error instanceof Error ? error.message : '';
+    }
+
+    expect(message).toContain('APP_DB_PASSWORD');
+    expect(message).not.toContain('hunter2');
+  });
+
   it.each([
     ['a short app password', { APP_DB_PASSWORD: 'short' }],
     ['an unsafe role name', { APP_DB_PASSWORD: 'a'.repeat(16), APP_DB_USER: 'Robert"; DROP' }],
+    ['a non-ASCII app password', { APP_DB_PASSWORD: `${'a'.repeat(16)}${NON_BREAKING_SPACE}` }],
   ])('rejects %s', (_case, overrides) => {
     expect(() => loadMigrateConfig({ ...REQUIRED_DB_ENV, ...overrides })).toThrow(ConfigError);
   });
