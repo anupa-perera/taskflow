@@ -4,11 +4,10 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { Type } from 'typebox';
-import type pg from 'pg';
 import type { Config } from './config.js';
 import { HTTP_STATUS } from './http-status.js';
 import { handleFrameworkError, ProblemDetails, registerErrorHandling } from './errors.js';
-import { createTaskRepository } from './tasks/repository.js';
+import type { TaskRepository } from './tasks/repository.js';
 import { taskRoutes } from './tasks/routes.js';
 import { validatorCompiler } from './validation.js';
 
@@ -17,10 +16,10 @@ const MAX_REQUEST_BODY_BYTES = 64 * 1024;
 
 export interface AppDependencies {
   config: Pick<Config, 'LOG_LEVEL'>;
-  pool: pg.Pool;
+  repository: TaskRepository;
 }
 
-export async function buildApp({ config, pool }: AppDependencies): Promise<FastifyInstance> {
+export async function buildApp({ config, repository }: AppDependencies): Promise<FastifyInstance> {
   const app = Fastify({
     logger: {
       level: config.LOG_LEVEL,
@@ -65,7 +64,7 @@ export async function buildApp({ config, pool }: AppDependencies): Promise<Fasti
     () => ({ status: 'ok' as const }),
   );
 
-  await app.register(taskRoutes, { repository: createTaskRepository(pool) });
+  await app.register(taskRoutes, { repository });
 
   return app;
 }

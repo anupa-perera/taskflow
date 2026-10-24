@@ -1,10 +1,11 @@
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { createPool } from './db.js';
+import { createTaskRepository } from './tasks/repository.js';
 
 const config = loadConfig();
 const pool = createPool(config);
-const app = await buildApp({ config, pool });
+const app = await buildApp({ config, repository: createTaskRepository(pool) });
 
 // Unhandled, an idle client's connection loss (e.g. RDS failover) crashes the process.
 pool.on('error', (error) => {
