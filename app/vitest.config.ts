@@ -10,7 +10,13 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.ts'],
       // Entry points connect and call process.exit on import; they are verified by running them.
-      exclude: ['src/server.ts', 'src/migrate.ts', 'src/migrations/**', 'src/**/types.ts'],
+      exclude: [
+        'src/server.ts',
+        'src/migrate.ts',
+        'src/healthcheck.ts',
+        'src/migrations/**',
+        'src/**/types.ts',
+      ],
       reporter: ['text', 'cobertura'],
       thresholds: {
         lines: MIN_COVERAGE_PERCENT,
