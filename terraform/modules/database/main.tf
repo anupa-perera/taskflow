@@ -29,6 +29,8 @@ resource "aws_db_parameter_group" "this" {
   parameter {
     name  = "rds.force_ssl"
     value = "1"
+    # How RDS reports this parameter; without it every plan shows a phantom change.
+    apply_method = "pending-reboot"
   }
 
   # Statements slower than this are logged, which is the first clue in a pool-exhaustion incident.
