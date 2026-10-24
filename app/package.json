@@ -9,7 +9,6 @@
   },
   "scripts": {
     "dev": "tsx watch --env-file=.env src/server.ts",
-    "migrate:dev": "DB_USER=taskflow_admin DB_PASSWORD=local-admin-password tsx --env-file=.env src/migrate.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "migrate": "node dist/migrate.js",

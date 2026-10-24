@@ -1,4 +1,10 @@
-# Local Postgres. The master user runs migrations; the API connects as taskflow_app.
+# Local stack mirroring production: migrate runs once as the master user, then the API starts as
+# the restricted taskflow_app role. Credentials here are local-only.
+x-db: &db
+  DB_HOST: postgres
+  DB_NAME: taskflow
+  DB_SSL: 'false'
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -13,3 +19,34 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+
+  migrate:
+    build: .
+    image: taskflow:local
+    command: ['dist/migrate.js']
+    # A one-off job serves no HTTP, so the image's /health probe does not apply.
+    healthcheck:
+      disable: true
+    environment:
+      <<: *db
+      DB_USER: taskflow_admin
+      DB_PASSWORD: local-admin-password
+      APP_DB_USER: taskflow_app
+      APP_DB_PASSWORD: local-app-password-0001
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    image: taskflow:local
+    environment:
+      <<: *db
+      DB_USER: taskflow_app
+      DB_PASSWORD: local-app-password-0001
+    ports:
+      - '3000:3000'
+    # Same window ECS gives a task between SIGTERM and SIGKILL.
+    stop_grace_period: 30s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
