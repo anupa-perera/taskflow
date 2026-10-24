@@ -12,3 +12,14 @@ module "network" {
     "ap-south-1b" = 1
   }
 }
+
+module "database" {
+  source = "../../modules/database"
+
+  name       = local.name
+  vpc_id     = module.network.vpc_id
+  subnet_ids = module.network.private_subnet_ids
+
+  deletion_protection = var.database_deletion_protection
+  final_snapshot      = var.database_final_snapshot
+}
