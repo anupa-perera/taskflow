@@ -1,0 +1,8 @@
+# Store and check out text files with LF, regardless of the developer's OS.
+# CI runners, containers and EC2 hosts are Linux; CRLF breaks shell scripts and some YAML parsers.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.mp4 binary

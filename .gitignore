@@ -1,0 +1,44 @@
+# --- Secrets: never committed (assignment 4.3) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+credentials
+*.tfvars.secret
+
+# --- Node / app ---
+node_modules/
+dist/
+coverage/
+*.log
+
+# --- Terraform ---
+# State holds resource IDs and secret values in plain text; it lives in S3, not git.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# .terraform.lock.hcl is intentionally NOT ignored: it pins provider versions.
+
+# --- Ansible ---
+*.retry
+.ansible/
+
+# --- Lambda build output ---
+*.zip
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
