@@ -1,0 +1,8 @@
+# Allow-list: anything not re-included below never reaches the build context.
+*
+!package.json
+!yarn.lock
+!.yarnrc.yml
+!tsconfig.json
+!tsconfig.build.json
+!src/

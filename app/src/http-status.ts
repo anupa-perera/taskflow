@@ -1,0 +1,17 @@
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  NOT_FOUND: 404,
+  PAYLOAD_TOO_LARGE: 413,
+  UNSUPPORTED_MEDIA_TYPE: 415,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
+} as const;
+
+const CLIENT_ERROR_CLASS_START = 400;
+const SERVER_ERROR_CLASS_START = 500;
+
+export const isClientError = (status: number): boolean =>
+  status >= CLIENT_ERROR_CLASS_START && status < SERVER_ERROR_CLASS_START;
