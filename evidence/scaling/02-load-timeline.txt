@@ -1,0 +1,38 @@
+09:30:21Z load now 700 req/s
+09:30:27Z desired=2 running=2
+09:31:03Z desired=2 running=2
+09:31:39Z desired=2 running=2
+09:32:15Z desired=2 running=2
+09:32:52Z desired=2 running=2
+09:33:29Z desired=2 running=2
+09:34:05Z desired=2 running=2
+09:34:41Z desired=2 running=2
+09:35:18Z desired=2 running=2
+09:35:54Z desired=2 running=3
+09:36:00Z load now 1050 req/s
+09:36:06Z desired=2 running=3
+09:36:42Z desired=3 running=2
+09:37:19Z desired=3 running=3
+09:37:55Z desired=3 running=3
+09:38:31Z desired=3 running=3
+09:39:07Z desired=4 running=4
+09:39:15Z load now 1400 req/s
+09:39:27Z desired=4 running=4 composite=OK
+09:40:10Z desired=4 running=4 composite=OK
+09:40:52Z desired=4 running=4 composite=OK
+09:41:32Z load now 1600 req/s (raised by hand: 350 req/s per task gave only 80-84% CPU on 2 tasks)
+09:41:34Z desired=4 running=4 composite=OK
+09:42:16Z desired=4 running=4 composite=OK
+09:42:59Z desired=4 running=4 composite=OK
+09:43:41Z desired=4 running=4 composite=OK
+09:44:23Z desired=4 running=4 composite=OK
+09:45:05Z desired=4 running=4 composite=OK
+09:45:47Z desired=4 running=4 composite=OK
+09:46:28Z desired=4 running=4 composite=OK
+09:47:10Z desired=4 running=4 composite=OK
+09:47:53Z desired=4 running=4 composite=OK
+09:48:36Z desired=4 running=4 composite=OK
+09:49:18Z desired=4 running=4 composite=ALARM
+09:49:19Z vertical scaling composite alarm is in ALARM; load keeps running
+09:54:17Z rollout of revision 2: state/running/pending=COMPLETED	4	0 hosts=4
+09:59:37Z load stopped

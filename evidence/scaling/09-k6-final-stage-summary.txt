@@ -1,0 +1,24 @@
+
+
+time="2026-10-25T09:59:36Z" level=error msg="test run was aborted because k6 received a 'terminated' signal"
+  █ TOTAL RESULTS 
+
+    HTTP
+    http_req_duration..............: avg=140.16ms min=48.5ms  med=68.51ms max=7.99s p(90)=245.14ms p(95)=410.26ms
+      { expected_response:true }...: avg=133.3ms  min=48.5ms  med=68.47ms max=7.99s p(90)=242.1ms  p(95)=403.09ms
+    http_req_failed................: 0.16%   2821 out of 1710118
+    http_reqs......................: 1710118 1578.707443/s
+
+    EXECUTION
+    dropped_iterations.............: 23131   21.353545/s
+    iteration_duration.............: avg=140.84ms min=51.81ms med=68.6ms  max=7.99s p(90)=246ms    p(95)=412.1ms 
+    iterations.....................: 1710118 1578.707443/s
+    vus............................: 100     min=89              max=1000
+    vus_max........................: 1000    min=578             max=1000
+
+    NETWORK
+    data_received..................: 711 MB  657 kB/s
+    data_sent......................: 207 MB  191 kB/s
+
+
+

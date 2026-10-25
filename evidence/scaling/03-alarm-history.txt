@@ -1,0 +1,18 @@
+# Alarm history from 2026-10-25T09:25:00Z to 2026-10-25T09:59:39Z (newest first; timestamps in +05:30)
+## taskflow-prod-api-vertical-scale
+2026-10-25T15:25:08.804000+05:30	StateUpdate	Alarm updated from ALARM to OK
+2026-10-25T15:19:08.858000+05:30	Action	Successfully executed Lambda action : arn:aws:lambda:ap-south-1:621574609594:function:taskflow-prod-vertical-scaler
+2026-10-25T15:19:08.805000+05:30	StateUpdate	Alarm updated from OK to ALARM
+## taskflow-prod-api-at-max-tasks
+2026-10-25T15:14:58.630000+05:30	StateUpdate	Alarm updated from OK to ALARM
+## taskflow-prod-api-cpu-high
+2026-10-25T15:25:08.804000+05:30	StateUpdate	Alarm updated from ALARM to OK
+2026-10-25T15:19:08.805000+05:30	StateUpdate	Alarm updated from OK to ALARM
+## taskflow-prod-api-memory-high
+## Composite alarm definition
+{
+    "rule": "(ALARM(\"taskflow-prod-api-cpu-high\") OR ALARM(\"taskflow-prod-api-memory-high\")) AND ALARM(\"taskflow-prod-api-at-max-tasks\")",
+    "actions": [
+        "arn:aws:lambda:ap-south-1:621574609594:function:taskflow-prod-vertical-scaler"
+    ]
+}

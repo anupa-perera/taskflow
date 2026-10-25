@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#374151"/>
+    </marker>
+    <style>
+      .title { font-size: 22px; font-weight: 600; fill: #111827; }
+      .repo { fill: #4f46e5; stroke: #3730a3; stroke-width: 1.5; }
+      .aws { fill: #0f8f6e; stroke: #0b6b52; stroke-width: 1.5; }
+      .name { font-size: 16px; font-weight: 600; fill: #ffffff; }
+      .desc { font-size: 13px; fill: #e0e7ff; }
+      .desc-aws { font-size: 13px; fill: #d1fae5; }
+      .dark { font-size: 16px; font-weight: 600; fill: #111827; }
+      .group { font-size: 14px; font-weight: 600; fill: #374151; }
+      .label { font-size: 12px; fill: #374151; }
+      .legend { font-size: 13px; fill: #374151; }
+      .flow { stroke: #374151; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="800" fill="#ffffff"/>
+  <text x="32" y="42" class="title">TaskFlow architecture</text>
+
+  <!-- What we write -->
+  <rect x="560" y="70" width="260" height="64" rx="10" class="repo"/>
+  <text x="690" y="98" text-anchor="middle" class="name">TaskFlow API</text>
+  <text x="690" y="119" text-anchor="middle" class="desc">TypeScript + Fastify</text>
+
+  <rect x="500" y="176" width="380" height="64" rx="10" class="repo"/>
+  <text x="690" y="204" text-anchor="middle" class="name">GitLab CI/CD pipeline</text>
+  <text x="690" y="225" text-anchor="middle" class="desc">lint · scan · test · build · apply · deploy</text>
+
+  <rect x="240" y="300" width="260" height="64" rx="10" class="repo"/>
+  <text x="370" y="328" text-anchor="middle" class="name">Terraform</text>
+  <text x="370" y="349" text-anchor="middle" class="desc">creates the AWS resources</text>
+
+  <rect x="560" y="300" width="260" height="64" rx="10" class="repo"/>
+  <text x="690" y="328" text-anchor="middle" class="name">Ansible</text>
+  <text x="690" y="349" text-anchor="middle" class="desc">configures the EC2 hosts</text>
+
+  <rect x="880" y="300" width="260" height="64" rx="10" class="repo"/>
+  <text x="1010" y="328" text-anchor="middle" class="name">Docker image</text>
+  <text x="1010" y="349" text-anchor="middle" class="desc">pushed to ECR, tagged by commit</text>
+
+  <path d="M690 134 V176" class="flow"/>
+  <path d="M690 240 V300" class="flow"/>
+  <path d="M640 240 V270 H370 V300" class="flow"/>
+  <path d="M740 240 V270 H1010 V300" class="flow"/>
+
+  <!-- What runs on AWS -->
+  <rect x="200" y="410" width="980" height="180" rx="14" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <text x="224" y="438" class="group">VPC in ap-south-1, across two availability zones</text>
+
+  <path d="M370 364 V410" class="flow"/>
+  <text x="378" y="392" class="label">creates</text>
+  <path d="M660 364 V470" class="flow"/>
+  <text x="604" y="392" class="label">configures</text>
+  <path d="M1010 364 V390 H730 V470" class="flow"/>
+  <text x="1018" y="384" class="label">pulled at deploy</text>
+
+  <rect x="40" y="482" width="120" height="56" rx="28" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="100" y="516" text-anchor="middle" class="dark">Users</text>
+
+  <rect x="240" y="470" width="260" height="80" rx="10" class="aws"/>
+  <text x="370" y="504" text-anchor="middle" class="name">Load balancer</text>
+  <text x="370" y="526" text-anchor="middle" class="desc-aws">public subnets</text>
+
+  <rect x="560" y="470" width="260" height="80" rx="10" class="aws"/>
+  <text x="690" y="504" text-anchor="middle" class="name">ECS cluster on EC2</text>
+  <text x="690" y="526" text-anchor="middle" class="desc-aws">private subnets · 2-4 hosts</text>
+
+  <rect x="880" y="470" width="260" height="80" rx="10" class="aws"/>
+  <text x="1010" y="504" text-anchor="middle" class="name">RDS PostgreSQL</text>
+  <text x="1010" y="526" text-anchor="middle" class="desc-aws">private subnets</text>
+
+  <path d="M160 510 H240" class="flow"/>
+  <text x="200" y="500" text-anchor="middle" class="label">HTTP 80</text>
+  <path d="M500 510 H560" class="flow"/>
+  <text x="530" y="500" text-anchor="middle" class="label">3000</text>
+  <path d="M820 510 H880" class="flow"/>
+  <text x="850" y="500" text-anchor="middle" class="label">5432</text>
+
+  <!-- Managed services the cluster uses -->
+  <rect x="440" y="640" width="240" height="64" rx="10" class="aws"/>
+  <text x="560" y="668" text-anchor="middle" class="name">Secrets Manager</text>
+  <text x="560" y="689" text-anchor="middle" class="desc-aws">database credentials</text>
+
+  <rect x="740" y="640" width="240" height="64" rx="10" class="aws"/>
+  <text x="860" y="668" text-anchor="middle" class="name">CloudWatch</text>
+  <text x="860" y="689" text-anchor="middle" class="desc-aws">logs, metrics, alarms</text>
+
+  <path d="M610 640 V550" class="flow"/>
+  <path d="M790 550 V640" class="flow"/>
+
+  <!-- Legend -->
+  <rect x="440" y="748" width="16" height="16" rx="3" class="repo"/>
+  <text x="464" y="761" class="legend">In this repository</text>
+  <rect x="640" y="748" width="16" height="16" rx="3" class="aws"/>
+  <text x="664" y="761" class="legend">Runs on AWS</text>
+</svg>

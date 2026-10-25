@@ -1,0 +1,88 @@
+# Captured 2026-10-25T08:24:13Z, before any load
+## SSM parameter the task definition is built from
+
+{
+    "Name": "/taskflow-prod/api/task-size",
+    "Value": "{\"cpu\":256,\"memory\":512}",
+    "Version": 1,
+    "LastModified": "2026-10-25T13:50:14.967000+05:30"
+}
+## Service
+{
+    "taskDefinition": "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1",
+    "desired": 2,
+    "running": 2,
+    "deployments": [
+        {
+            "status": "PRIMARY",
+            "taskDefinition": "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1",
+            "rollout": "COMPLETED"
+        }
+    ]
+}
+## Running task definition size
+{
+    "arn": "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1",
+    "revision": 1,
+    "cpu": "256",
+    "memory": "512",
+    "image": "621574609594.dkr.ecr.ap-south-1.amazonaws.com/taskflow:43aca090"
+}
+## Service Auto Scaling
+[
+    {
+        "resource": "service/taskflow-prod/taskflow-prod-api",
+        "min": 2,
+        "max": 4
+    }
+]
+[
+    {
+        "name": "taskflow-prod-api-cpu",
+        "metric": "ECSServiceAverageCPUUtilization",
+        "target": 70.0
+    },
+    {
+        "name": "taskflow-prod-api-memory",
+        "metric": "ECSServiceAverageMemoryUtilization",
+        "target": 70.0
+    }
+]
+## Vertical scaling alarms
+{
+    "metric": [
+        {
+            "name": "taskflow-prod-api-at-max-tasks",
+            "state": "OK",
+            "metric": "DesiredTaskCount",
+            "threshold": 4.0,
+            "periods": 5
+        },
+        {
+            "name": "taskflow-prod-api-cpu-high",
+            "state": "OK",
+            "metric": "CPUUtilization",
+            "threshold": 80.0,
+            "periods": 5
+        },
+        {
+            "name": "taskflow-prod-api-memory-high",
+            "state": "OK",
+            "metric": "MemoryUtilization",
+            "threshold": 80.0,
+            "periods": 5
+        }
+    ],
+    "composite": [
+        {
+            "name": "taskflow-prod-api-vertical-scale",
+            "state": "OK",
+            "rule": "(ALARM(\"taskflow-prod-api-cpu-high\") OR ALARM(\"taskflow-prod-api-memory-high\")) AND ALARM(\"taskflow-prod-api-at-max-tasks\")",
+            "actions": [
+                "arn:aws:lambda:ap-south-1:621574609594:function:taskflow-prod-vertical-scaler"
+            ]
+        }
+    ]
+}
+## Hosts
+2

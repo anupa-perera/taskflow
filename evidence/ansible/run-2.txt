@@ -1,0 +1,275 @@
+
+PLAY [Configure ECS hosts] *****************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Pin the AL2023 release dnf installs from] ********************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Install dnf-automatic] ***************************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Configure dnf-automatic] *************************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Run dnf-automatic daily] *************************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Harden sshd] *************************************************
+ok: [i-0854518093b7f805b]
+
+TASK [Check whether sshd runs the current hardening] ***************************
+included: config_marker for i-0854518093b7f805b
+
+TASK [config_marker : Check the applied config for sshd] ***********************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Reload sshd] *************************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [Record the hardening sshd now runs] **************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [hardening : Install nftables] ********************************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Write the host firewall rules] *******************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Install the host firewall unit] ******************************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Enable the host firewall] ************************************
+ok: [i-0854518093b7f805b]
+
+TASK [Check whether the loaded rules are current] ******************************
+included: config_marker for i-0854518093b7f805b
+
+TASK [config_marker : Check the applied config for host-firewall] **************
+ok: [i-0854518093b7f805b]
+
+TASK [hardening : Reload the host firewall] ************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [Record the rules now loaded] *********************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [ecs_agent : Configure the ECS container agent] ***************************
+ok: [i-0854518093b7f805b] => (item=ECS_CLUSTER)
+ok: [i-0854518093b7f805b] => (item=ECS_AWSVPC_BLOCK_IMDS)
+ok: [i-0854518093b7f805b] => (item=ECS_DISABLE_PRIVILEGED)
+ok: [i-0854518093b7f805b] => (item=ECS_IMAGE_PULL_BEHAVIOR)
+ok: [i-0854518093b7f805b] => (item=ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION)
+
+TASK [ecs_agent : Run the ECS agent] *******************************************
+ok: [i-0854518093b7f805b]
+
+TASK [Check whether the agent runs the current ecs.config] *********************
+included: config_marker for i-0854518093b7f805b
+
+TASK [config_marker : Check the applied config for ecs-agent] ******************
+ok: [i-0854518093b7f805b]
+
+TASK [ecs_agent : Restart the ECS agent] ***************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [Record the ecs.config the agent now runs] ********************************
+skipping: [i-0854518093b7f805b]
+
+TASK [docker : Install Docker] *************************************************
+ok: [i-0854518093b7f805b]
+
+TASK [docker : Configure the Docker daemon] ************************************
+ok: [i-0854518093b7f805b]
+
+TASK [docker : Run Docker at boot] *********************************************
+ok: [i-0854518093b7f805b]
+
+TASK [docker : Return a host an earlier run drained to service] ****************
+included: /work/ansible/roles/docker/tasks/reactivate.yml for i-0854518093b7f805b
+
+TASK [docker : Look for a drain this role started] *****************************
+ok: [i-0854518093b7f805b]
+
+TASK [docker : Read which container instance was drained] **********************
+skipping: [i-0854518093b7f805b]
+
+TASK [docker : Set the container instance ACTIVE] ******************************
+skipping: [i-0854518093b7f805b]
+
+TASK [docker : Forget the drain] ***********************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [Check whether Docker runs the current daemon.json] ***********************
+included: config_marker for i-0854518093b7f805b
+
+TASK [config_marker : Check the applied config for docker-daemon] **************
+ok: [i-0854518093b7f805b]
+
+TASK [docker : Restart Docker with the host drained] ***************************
+skipping: [i-0854518093b7f805b]
+
+TASK [cloudwatch_agent : Install the CloudWatch agent] *************************
+ok: [i-0854518093b7f805b]
+
+TASK [cloudwatch_agent : Create the CloudWatch agent config directory] *********
+ok: [i-0854518093b7f805b]
+
+TASK [cloudwatch_agent : Configure the CloudWatch agent] ***********************
+ok: [i-0854518093b7f805b]
+
+TASK [Check whether the agent runs the current config] *************************
+included: config_marker for i-0854518093b7f805b
+
+TASK [config_marker : Check the applied config for cloudwatch-agent] ***********
+ok: [i-0854518093b7f805b]
+
+TASK [cloudwatch_agent : Load the config into the agent] ***********************
+skipping: [i-0854518093b7f805b]
+
+TASK [Record the config the agent now runs] ************************************
+skipping: [i-0854518093b7f805b]
+
+TASK [cloudwatch_agent : Run the CloudWatch agent at boot] *********************
+ok: [i-0854518093b7f805b]
+
+PLAY [Configure ECS hosts] *****************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Pin the AL2023 release dnf installs from] ********************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Install dnf-automatic] ***************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Configure dnf-automatic] *************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Run dnf-automatic daily] *************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Harden sshd] *************************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [Check whether sshd runs the current hardening] ***************************
+included: config_marker for i-0f59f57e73bee85f9
+
+TASK [config_marker : Check the applied config for sshd] ***********************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Reload sshd] *************************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [Record the hardening sshd now runs] **************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Install nftables] ********************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Write the host firewall rules] *******************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Install the host firewall unit] ******************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Enable the host firewall] ************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [Check whether the loaded rules are current] ******************************
+included: config_marker for i-0f59f57e73bee85f9
+
+TASK [config_marker : Check the applied config for host-firewall] **************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [hardening : Reload the host firewall] ************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [Record the rules now loaded] *********************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [ecs_agent : Configure the ECS container agent] ***************************
+ok: [i-0f59f57e73bee85f9] => (item=ECS_CLUSTER)
+ok: [i-0f59f57e73bee85f9] => (item=ECS_AWSVPC_BLOCK_IMDS)
+ok: [i-0f59f57e73bee85f9] => (item=ECS_DISABLE_PRIVILEGED)
+ok: [i-0f59f57e73bee85f9] => (item=ECS_IMAGE_PULL_BEHAVIOR)
+ok: [i-0f59f57e73bee85f9] => (item=ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION)
+
+TASK [ecs_agent : Run the ECS agent] *******************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [Check whether the agent runs the current ecs.config] *********************
+included: config_marker for i-0f59f57e73bee85f9
+
+TASK [config_marker : Check the applied config for ecs-agent] ******************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [ecs_agent : Restart the ECS agent] ***************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [Record the ecs.config the agent now runs] ********************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [docker : Install Docker] *************************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [docker : Configure the Docker daemon] ************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [docker : Run Docker at boot] *********************************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [docker : Return a host an earlier run drained to service] ****************
+included: /work/ansible/roles/docker/tasks/reactivate.yml for i-0f59f57e73bee85f9
+
+TASK [docker : Look for a drain this role started] *****************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [docker : Read which container instance was drained] **********************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [docker : Set the container instance ACTIVE] ******************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [docker : Forget the drain] ***********************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [Check whether Docker runs the current daemon.json] ***********************
+included: config_marker for i-0f59f57e73bee85f9
+
+TASK [config_marker : Check the applied config for docker-daemon] **************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [docker : Restart Docker with the host drained] ***************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [cloudwatch_agent : Install the CloudWatch agent] *************************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [cloudwatch_agent : Create the CloudWatch agent config directory] *********
+ok: [i-0f59f57e73bee85f9]
+
+TASK [cloudwatch_agent : Configure the CloudWatch agent] ***********************
+ok: [i-0f59f57e73bee85f9]
+
+TASK [Check whether the agent runs the current config] *************************
+included: config_marker for i-0f59f57e73bee85f9
+
+TASK [config_marker : Check the applied config for cloudwatch-agent] ***********
+ok: [i-0f59f57e73bee85f9]
+
+TASK [cloudwatch_agent : Load the config into the agent] ***********************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [Record the config the agent now runs] ************************************
+skipping: [i-0f59f57e73bee85f9]
+
+TASK [cloudwatch_agent : Run the CloudWatch agent at boot] *********************
+ok: [i-0f59f57e73bee85f9]
+
+PLAY RECAP *********************************************************************
+i-0854518093b7f805b        : ok=31   changed=0    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+i-0f59f57e73bee85f9        : ok=31   changed=0    unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+

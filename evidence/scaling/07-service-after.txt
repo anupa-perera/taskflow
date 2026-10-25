@@ -1,0 +1,69 @@
+# Captured 2026-10-25T09:59:39Z
+## SSM parameter after
+{
+    "Value": "{\"cpu\":512,\"memory\":768}",
+    "Version": 2,
+    "LastModified": "2026-10-25T15:19:10.135000+05:30"
+}
+## Service
+{
+    "taskDefinition": "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:2",
+    "desired": 4,
+    "running": 4,
+    "deployments": [
+        {
+            "status": "PRIMARY",
+            "taskDefinition": "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:2",
+            "rollout": "COMPLETED",
+            "running": 4,
+            "created": "2026-10-25T15:19:10.421000+05:30",
+            "updated": "2026-10-25T15:24:05.100000+05:30"
+        }
+    ]
+}
+## Service events (newest first)
+2026-10-25T15:24:05.108000+05:30	(service taskflow-prod-api) has reached a steady state.
+2026-10-25T15:24:05.107000+05:30	(service taskflow-prod-api) (deployment ecs-svc/4575810451086063553) deployment completed.
+2026-10-25T15:23:11.611000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has begun draining connections on 4 tasks.
+2026-10-25T15:23:11.606000+05:30	(service taskflow-prod-api) deregistered 4 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T15:23:01.474000+05:30	(service taskflow-prod-api) has stopped 4 running tasks: (task 7225ead1eb5f41b18d56f40980a56d0d) (task 56ac9c4dc83c44bc94a815ddce5e58d4) (task 64f4e414158445b181b78d69d90f08cb) (task 2d002bf6ed2649c2aacda59ebc8966d5).
+2026-10-25T15:22:30.788000+05:30	(service taskflow-prod-api) registered 2 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T15:22:08.786000+05:30	(service taskflow-prod-api, taskSet ecs-svc/4575810451086063553) has started 3 tasks: (task b8f67498357c4c8e8776a2cec3cd540b) (task c7c6f7b327754fb698d129497b3132b6) (task fd3ecf6b7bd54df5a6057073602f7366).
+2026-10-25T15:22:07.919000+05:30	(service taskflow-prod-api, taskSet ecs-svc/4575810451086063553) has started 1 tasks: (task 0babefc675ad49f8999b7303a6c50e0e).
+2026-10-25T15:19:31.965000+05:30	(service taskflow-prod-api) has started 3 tasks: (task b8f67498357c4c8e8776a2cec3cd540b) (task fd3ecf6b7bd54df5a6057073602f7366) (task c7c6f7b327754fb698d129497b3132b6).
+2026-10-25T15:19:21.823000+05:30	(service taskflow-prod-api) has started 1 tasks: (task 0babefc675ad49f8999b7303a6c50e0e).
+2026-10-25T15:09:25.288000+05:30	(service taskflow-prod-api) has reached a steady state.
+2026-10-25T15:09:05.160000+05:30	(service taskflow-prod-api) registered 1 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T15:08:46.256000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has started 1 tasks: (task 2d002bf6ed2649c2aacda59ebc8966d5).
+2026-10-25T15:08:46.071000+05:30	(service taskflow-prod-api) has started 1 tasks: (task 2d002bf6ed2649c2aacda59ebc8966d5).
+2026-10-25T15:07:39.426000+05:30	(service taskflow-prod-api) has reached a steady state.
+2026-10-25T15:07:00.177000+05:30	(service taskflow-prod-api) registered 1 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T15:06:41.247000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has started 1 tasks: (task 64f4e414158445b181b78d69d90f08cb).
+2026-10-25T15:06:40.710000+05:30	(service taskflow-prod-api) has started 1 tasks: (task 64f4e414158445b181b78d69d90f08cb).
+2026-10-25T15:06:22.122000+05:30	(service taskflow-prod-api) has reached a steady state.
+2026-10-25T15:06:22.045000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has begun draining connections on 1 tasks.
+2026-10-25T15:06:22.040000+05:30	(service taskflow-prod-api) deregistered 1 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T15:06:12.567000+05:30	(service taskflow-prod-api) has stopped 1 running tasks: (task 4c6162ccc4ce419989526033d524c728).
+2026-10-25T15:05:34.398000+05:30	(service taskflow-prod-api) registered 1 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T15:05:16.294000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has started 1 tasks: (task 56ac9c4dc83c44bc94a815ddce5e58d4).
+2026-10-25T15:05:15.605000+05:30	(service taskflow-prod-api) has started 1 tasks: (task 56ac9c4dc83c44bc94a815ddce5e58d4). Amazon ECS replaced 1 tasks due to an unhealthy status.
+2026-10-25T13:11:24.242000+05:30	(service taskflow-prod-api) has reached a steady state.
+2026-10-25T13:11:24.241000+05:30	(service taskflow-prod-api) is AZ balanced with 1 tasks in ap-south-1b, 1 tasks in ap-south-1a.
+2026-10-25T13:11:24.164000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has begun draining connections on 1 tasks.
+2026-10-25T13:11:24.158000+05:30	(service taskflow-prod-api) deregistered 1 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T13:11:14.053000+05:30	(service taskflow-prod-api) has stopped 1 running tasks: (task f838231569544b6c98823d54aa6c1c98).
+2026-10-25T13:10:44.726000+05:30	(service taskflow-prod-api) registered 1 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T13:10:26.264000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has started 1 tasks: (task 4c6162ccc4ce419989526033d524c728).
+2026-10-25T13:10:25.369000+05:30	(service taskflow-prod-api) has started 1 tasks in ap-south-1a to AZ Rebalance: (task 4c6162ccc4ce419989526033d524c728).
+2026-10-25T13:10:25.022000+05:30	(service taskflow-prod-api) is not AZ balanced with 2 tasks in ap-south-1b, 0 tasks in ap-south-1a. AZ Rebalancing in progress.
+2026-10-25T12:55:11.746000+05:30	(service taskflow-prod-api) has reached a steady state.
+2026-10-25T12:55:11.663000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has begun draining connections on 2 tasks.
+2026-10-25T12:55:11.659000+05:30	(service taskflow-prod-api) deregistered 2 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T12:55:01.656000+05:30	(service taskflow-prod-api) has stopped 2 running tasks: (task 465e8eb638de47e1a656c951b58a9130) (task f438809bbeaa46008e97915f766d6f54).
+2026-10-25T12:54:42.980000+05:30	(service taskflow-prod-api) registered 2 targets in (target-group arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4)
+2026-10-25T12:54:20.272000+05:30	(service taskflow-prod-api, taskSet ecs-svc/0534786107261356162) has started 2 tasks: (task 7225ead1eb5f41b18d56f40980a56d0d) (task f838231569544b6c98823d54aa6c1c98).
+## Service Auto Scaling activities
+2026-10-25T15:08:36.599000+05:30	Successful	Setting desired count to 4.	monitor alarm TargetTracking-service/taskflow-prod/taskflow-prod-api-AlarmHigh-968fd535-0c94-4f1b-8d0d-2db07d063343 in state ALARM triggered policy taskflow-prod-api-cpu
+2026-10-25T15:06:36.585000+05:30	Successful	Setting desired count to 3.	monitor alarm TargetTracking-service/taskflow-prod/taskflow-prod-api-AlarmHigh-968fd535-0c94-4f1b-8d0d-2db07d063343 in state ALARM triggered policy taskflow-prod-api-cpu
+## Hosts
+4

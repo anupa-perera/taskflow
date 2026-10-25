@@ -1,0 +1,54 @@
+## nft tables (ours + iptables-nft)
+table ip nat
+table ip filter
+table ip6 filter
+table inet taskflow_host
+## ECS metadata DNAT still present
+-A PREROUTING -d 169.254.170.2/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination 127.0.0.1:51679
+## ecs.config
+ECS_CLUSTER=taskflow-prod
+ECS_AWSVPC_BLOCK_IMDS=true
+ECS_DISABLE_PRIVILEGED=true
+ECS_IMAGE_PULL_BEHAVIOR=once
+ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION=1h
+## sshd effective
+permitrootlogin no
+passwordauthentication no
+kbdinteractiveauthentication no
+## releasever
+2023.12.20261016$
+## timers/services
+active
+active
+active
+active
+active
+## docker daemon.json
+{
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-file": "3",
+        "max-size": "10m"
+    }
+}
+
+## container instances
+i-0854518093b7f805b	ACTIVE	True	1
+i-0f59f57e73bee85f9	ACTIVE	True	1
+## host log streams
+i-0854518093b7f805b/dnf
+i-0854518093b7f805b/ecs-agent
+i-0854518093b7f805b/ecs-audit
+i-0854518093b7f805b/ecs-init
+i-0f59f57e73bee85f9/dnf
+i-0f59f57e73bee85f9/ecs-agent
+i-0f59f57e73bee85f9/ecs-audit
+i-0f59f57e73bee85f9/ecs-init
+## host metrics
+disk_used_percent	/
+disk_used_percent	taskflow-prod-ecs-hosts-ada6717779cc86e051b984f947
+mem_used_percent	i-0854518093b7f805b
+mem_used_percent	i-0f59f57e73bee85f9
+mem_used_percent	taskflow-prod-ecs-hosts-ada6717779cc86e051b984f947
+## service
+2	2	COMPLETED
