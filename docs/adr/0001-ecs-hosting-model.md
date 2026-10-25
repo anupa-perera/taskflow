@@ -36,9 +36,11 @@ Run the service on **ECS with the EC2 launch type**:
 - **`awsvpc` network mode**: every task gets its own network interface and security group, so RDS
   admits only the task security group and the ALB targets task IPs directly.
 - Instances are configured in two layers. Launch-template user data does only what an instance needs
-  to join the cluster. Ansible owns everything else, and must also reach instances the ASG launches
-  later, without anyone running a playbook by hand; that mechanism is part of the configuration
-  management design.
+  to join the cluster. Ansible owns everything else, reaching hosts through Session Manager (no SSH
+  ingress). The CI pipeline runs it after every infrastructure change, and an EventBridge rule on
+  the ASG's successful-launch event will trigger the same pipeline job for each instance launched
+  later, so no one runs a playbook by hand. Both are built with the pipeline; until then the
+  playbook is run with `scripts/ansible.sh`.
 
 ## Consequences
 
@@ -47,6 +49,11 @@ Run the service on **ECS with the EC2 launch type**:
 - **We own the hosts**: AMI updates, OS patching, the ECS agent version and instance right-sizing are
   our responsibility. If host-level control stops being a requirement, Fargate becomes the simpler
   choice.
+- **A new host serves before it is configured**: it joins the cluster at boot and takes tasks for the
+  few minutes until its pipeline job finishes, and configuring later hosts depends on GitLab being
+  available. Running the playbook on the host at boot (SSM State Manager), with the ECS agent held
+  back until it succeeds, would close both gaps. We declined it: every host would also need its own
+  Python and Ansible installation to keep patched.
 - **Two scaling layers** must be kept consistent: task-level scaling (ECS Service Auto Scaling and the
   vertical-scaling mechanism) and instance-level scaling (the capacity provider). Adding instances
   fixes a lack of room, but not everything:
