@@ -63,6 +63,19 @@ if [ "$exit_code" != "0" ]; then
   exit 1
 fi
 
+# Vertical scaling may have resized the service since `terraform apply` registered this revision;
+# rolling it out would undo that. Re-running the release registers a revision at the new size.
+task_size_parameter="${TASK_SIZE_PARAMETER:-/$cluster/api/task-size}"
+recorded_size="$(aws_text ssm get-parameter --name "$task_size_parameter" --query 'Parameter.Value')"
+release_size="$(aws_text ecs describe-task-definition --task-definition "$api_task_definition" \
+  --query 'taskDefinition.[cpu, memory]')"
+read -r release_cpu release_memory <<<"$release_size"
+if [ "$recorded_size" != "{\"cpu\":$release_cpu,\"memory\":$release_memory}" ]; then
+  echo "The service's size is now $recorded_size, but this revision has cpu $release_cpu and" >&2
+  echo "memory $release_memory. Re-run the release to register a revision at the current size." >&2
+  exit 1
+fi
+
 echo "Rolling out: $api_task_definition"
 aws ecs update-service --cluster "$cluster" --service "$service" \
   --task-definition "$api_task_definition" --query 'service.serviceName' --output text >/dev/null
