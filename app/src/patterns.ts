@@ -15,6 +15,11 @@ export const PATTERNS = {
     regex: '^\\s*[^\\s\\u0000][^\\u0000]*$',
     message: 'must not be blank or contain NUL characters',
   },
+  // The SCRAM verifier is computed without SASLprep, which only leaves ASCII passwords unchanged.
+  printableAscii: {
+    regex: '^[\\x20-\\x7E]+$',
+    message: 'must contain only printable ASCII characters',
+  },
 } as const;
 
 const messageByRegex = new Map<string, string>(

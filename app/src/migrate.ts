@@ -5,14 +5,17 @@ import pg from 'pg';
 import { pino } from 'pino';
 import { loadMigrateConfig, type MigrateConfig } from './config.js';
 import { connectionOptions, queryTimeouts } from './db.js';
+import { scramSha256Verifier } from './scram.js';
 
 const log = pino({ name: 'migrate' });
 
 async function ensureAppRole(client: pg.Client, config: MigrateConfig): Promise<void> {
   const role = pg.escapeIdentifier(config.APP_DB_USER);
   const roleName = pg.escapeLiteral(config.APP_DB_USER);
-  // ALTER ROLE takes no bind parameters. Re-applied each run so the role tracks the secret.
-  const password = pg.escapeLiteral(config.APP_DB_PASSWORD);
+  // ALTER ROLE takes no bind parameters, so the statement text could reach slow-query or error
+  // logs: it carries a salted SCRAM verifier, never the password. Re-applied each run so the role
+  // tracks the secret.
+  const verifier = pg.escapeLiteral(scramSha256Verifier(config.APP_DB_PASSWORD));
 
   await client.query(`
     DO $$ BEGIN
@@ -20,7 +23,7 @@ async function ensureAppRole(client: pg.Client, config: MigrateConfig): Promise<
         CREATE ROLE ${role} LOGIN;
       END IF;
     END $$;
-    ALTER ROLE ${role} WITH LOGIN PASSWORD ${password};
+    ALTER ROLE ${role} WITH LOGIN PASSWORD ${verifier};
     GRANT CONNECT ON DATABASE ${pg.escapeIdentifier(config.DB_NAME)} TO ${role};
     GRANT USAGE ON SCHEMA public TO ${role};
     GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${role};

@@ -55,7 +55,10 @@ const ConfigSchema = Type.Object({
 const MigrateConfigSchema = Type.Object({
   ...databaseProperties,
   APP_DB_USER: Type.String({ pattern: PATTERNS.postgresRoleName.regex, default: 'taskflow_app' }),
-  APP_DB_PASSWORD: Type.String({ minLength: MIN_APP_DB_PASSWORD_LENGTH }),
+  APP_DB_PASSWORD: Type.String({
+    minLength: MIN_APP_DB_PASSWORD_LENGTH,
+    pattern: PATTERNS.printableAscii.regex,
+  }),
 });
 
 export type Config = Static<typeof ConfigSchema>;
