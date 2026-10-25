@@ -5,6 +5,17 @@ locals {
   # Must match ECS_STOP_TIMEOUT_MS in app/src/config.ts, which bounds the app's shutdown deadline.
   stop_timeout_seconds = 30
 
+  # Start new tasks before stopping old ones, so a deployment never drops below desired capacity.
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent         = 200
+
+  # Every API connection must fit the database at peak: the most tasks scaling allows, doubled while
+  # a deployment runs old and new together (app/src/config.ts, DB_POOL_MAX). db.t4g.micro accepts
+  # about 80; the remainder is for the migration task and operators.
+  database_connection_budget = 40
+  peak_task_count            = local.max_task_count * local.deployment_maximum_percent / 100
+  db_pool_max                = floor(local.database_connection_budget / local.peak_task_count)
+
   deregistration_delay_seconds  = 30
   health_check_interval_seconds = 10
   health_check_timeout_seconds  = 5
@@ -79,6 +90,7 @@ resource "aws_ecs_task_definition" "api" {
     name = "api"
     environment = concat(local.database_environment, [
       { name = "LOG_LEVEL", value = var.log_level },
+      { name = "DB_POOL_MAX", value = tostring(local.db_pool_max) },
     ])
     secrets      = local.app_credentials
     portMappings = [{ containerPort = local.container_port, protocol = "tcp" }]
@@ -155,9 +167,8 @@ resource "aws_ecs_service" "api" {
 
   health_check_grace_period_seconds = local.health_check_grace_seconds
 
-  # Start new tasks before stopping old ones, so a deployment never drops below desired capacity.
-  deployment_minimum_healthy_percent = 100
-  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = local.deployment_minimum_healthy_percent
+  deployment_maximum_percent         = local.deployment_maximum_percent
 
   deployment_circuit_breaker {
     enable   = true
