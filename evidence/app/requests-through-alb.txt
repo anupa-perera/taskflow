@@ -1,0 +1,42 @@
+# Captured 2026-10-25T05:27:42Z against http://taskflow-prod-99231544.ap-south-1.elb.amazonaws.com
+
+$ curl -i http://taskflow-prod-99231544.ap-south-1.elb.amazonaws.com/health
+HTTP/1.1 200 OK
+Date: Sun, 25 Oct 2026 05:27:47 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 15
+Connection: keep-alive
+x-request-id: 5494b52a-1b36-4e51-8fdb-6904e3f5ac7f
+
+{"status":"ok"}
+
+$ curl -i http://taskflow-prod-99231544.ap-south-1.elb.amazonaws.com/tasks
+HTTP/1.1 200 OK
+Date: Sun, 25 Oct 2026 05:27:47 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 34
+Connection: keep-alive
+x-request-id: 38a7b371-d7e6-452c-8c3a-45391eacdc1a
+
+{"items":[],"limit":20,"offset":0}
+
+$ curl -i -X POST http://taskflow-prod-99231544.ap-south-1.elb.amazonaws.com/tasks -d '{"title":"Evidence task"}'
+HTTP/1.1 201 Created
+Date: Sun, 25 Oct 2026 05:27:48 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 182
+Connection: keep-alive
+x-request-id: f66f9501-355b-4c59-9bff-684667ec9368
+location: /tasks/c46022ff-f9ab-4383-ba78-d1d4019a3710
+
+{"id":"c46022ff-f9ab-4383-ba78-d1d4019a3710","title":"Evidence task","description":null,"status":"todo","createdAt":"2026-10-25T05:27:48.141Z","updatedAt":"2026-10-25T05:27:48.141Z"}
+
+$ curl -i -X POST http://taskflow-prod-99231544.ap-south-1.elb.amazonaws.com/tasks -d '{"title":""}'   # validation
+HTTP/1.1 400 Bad Request
+Date: Sun, 25 Oct 2026 05:27:48 GMT
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 264
+Connection: keep-alive
+x-request-id: 47e1337c-f82f-410e-bc0d-4b43f12c5e04
+
+{"type":"about:blank","title":"Bad Request","status":400,"detail":"Invalid body","instance":"/tasks","errors":[{"field":"body.title","message":"must NOT have fewer than 1 characters"},{"field":"body.title","message":"must not be blank or contain NUL characters"}]}

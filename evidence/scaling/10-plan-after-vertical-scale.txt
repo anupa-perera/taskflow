@@ -1,0 +1,188 @@
+module.database.random_id.final_snapshot: Refreshing state... [id=GbDxqw]
+module.database.random_password.app: Refreshing state... [id=none]
+module.service.data.archive_file.vertical_scaler: Reading...
+module.service.data.archive_file.vertical_scaler: Read complete after 0s [id=9b6b3bcc10097106f6dbe866d270e0ce41c49e55]
+module.ecs_cluster.data.aws_ssm_parameter.ecs_ami: Reading...
+module.database.aws_secretsmanager_secret.app: Refreshing state... [id=arn:aws:secretsmanager:ap-south-1:621574609594:secret:taskflow-prod/db/app-a1ef79f0d8d89a41e786d7542e-MROWFa]
+module.ecr.aws_ecr_repository.this: Refreshing state... [id=taskflow]
+module.database.aws_db_parameter_group.this: Refreshing state... [id=taskflow-prod-pg17-ef16c9f56bca2bf9ff1fd40e8a]
+module.service.aws_cloudwatch_log_group.tasks: Refreshing state... [id=/taskflow/ecs/taskflow-prod]
+module.database.aws_cloudwatch_log_group.postgresql: Refreshing state... [id=/aws/rds/instance/taskflow-prod/postgresql]
+module.network.data.aws_caller_identity.current: Reading...
+module.ecs_cluster.data.aws_caller_identity.current: Reading...
+module.network.data.aws_region.current: Reading...
+module.service.data.aws_region.current: Reading...
+module.service.data.aws_region.current: Read complete after 0s [id=ap-south-1]
+module.ecs_cluster.data.aws_iam_policy_document.ec2_assume: Reading...
+module.ecs_cluster.data.aws_iam_policy_document.ec2_assume: Read complete after 0s [id=2851119427]
+module.network.aws_cloudwatch_log_group.flow_logs: Refreshing state... [id=/taskflow/vpc/taskflow-prod/rejected]
+module.network.data.aws_region.current: Read complete after 0s [id=ap-south-1]
+module.service.data.aws_iam_policy_document.lambda_assume: Reading...
+module.service.data.aws_iam_policy_document.lambda_assume: Read complete after 0s [id=2690255455]
+module.service.aws_cloudwatch_log_group.vertical_scaler: Refreshing state... [id=/aws/lambda/taskflow-prod-vertical-scaler]
+module.ecs_cluster.data.aws_caller_identity.current: Read complete after 0s [id=621574609594]
+module.ecs_cluster.aws_cloudwatch_log_group.container_insights: Refreshing state... [id=/aws/ecs/containerinsights/taskflow-prod/performance]
+module.network.data.aws_caller_identity.current: Read complete after 0s [id=621574609594]
+module.ecs_cluster.aws_cloudwatch_log_group.hosts: Refreshing state... [id=/taskflow/ec2/taskflow-prod]
+module.ecs_cluster.data.aws_ssm_parameter.ecs_ami: Read complete after 0s [id=/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id]
+module.service.data.aws_caller_identity.current: Reading...
+module.service.data.aws_caller_identity.current: Read complete after 0s [id=621574609594]
+module.network.aws_vpc.this: Refreshing state... [id=vpc-007bd0f3dbaa6b14b]
+module.service.aws_ssm_parameter.api_task_size: Refreshing state... [id=/taskflow-prod/api/task-size]
+module.service.data.aws_iam_policy_document.ecs_tasks_assume: Reading...
+module.service.aws_iam_role.vertical_scaler: Refreshing state... [id=taskflow-prod-vertical-scaler]
+module.network.data.aws_iam_policy_document.flow_logs_assume: Reading...
+module.ecs_cluster.aws_iam_role.host: Refreshing state... [id=taskflow-prod-ecs-host]
+module.ecs_cluster.aws_s3_bucket.ansible_transfer: Refreshing state... [id=taskflow-prod-ansible-621574609594]
+module.service.data.aws_iam_policy_document.ecs_tasks_assume: Read complete after 0s [id=3529932536]
+module.network.data.aws_iam_policy_document.flow_logs_assume: Read complete after 0s [id=2660298389]
+module.ecs_cluster.aws_ecs_cluster.this: Refreshing state... [id=arn:aws:ecs:ap-south-1:621574609594:cluster/taskflow-prod]
+module.network.data.aws_iam_policy_document.flow_logs_write: Reading...
+module.database.aws_secretsmanager_secret_version.app: Refreshing state... [id=arn:aws:secretsmanager:ap-south-1:621574609594:secret:taskflow-prod/db/app-a1ef79f0d8d89a41e786d7542e-MROWFa|terraform-ONBSI6L4qIaaaJySckfklwbKtA]
+module.service.aws_iam_role.task: Refreshing state... [id=taskflow-prod-task]
+module.network.data.aws_iam_policy_document.flow_logs_write: Read complete after 0s [id=1774116787]
+module.network.aws_iam_role.flow_logs: Refreshing state... [id=taskflow-prod-vpc-flow-logs]
+module.ecs_cluster.data.aws_iam_policy_document.cloudwatch_agent: Reading...
+module.ecs_cluster.data.aws_iam_policy_document.cloudwatch_agent: Read complete after 0s [id=2704241039]
+module.ecr.aws_ecr_lifecycle_policy.this: Refreshing state... [id=taskflow]
+module.network.aws_internet_gateway.this: Refreshing state... [id=igw-057bd714fc995e2c8]
+module.network.aws_default_security_group.this: Refreshing state... [id=sg-000de7659a274d93e]
+module.network.aws_subnet.private["ap-south-1b"]: Refreshing state... [id=subnet-072d91e05f760c77a]
+module.network.aws_subnet.public["ap-south-1b"]: Refreshing state... [id=subnet-09777211ce2c2ed8b]
+module.network.aws_subnet.private["ap-south-1a"]: Refreshing state... [id=subnet-0ee76773ea92f0a2e]
+module.network.aws_subnet.public["ap-south-1a"]: Refreshing state... [id=subnet-037151d461d7fcf1e]
+module.ecs_cluster.aws_security_group.host: Refreshing state... [id=sg-0c5735dfa7633cf47]
+module.database.aws_security_group.db: Refreshing state... [id=sg-0c891a8c1498b6ec3]
+module.service.aws_lb_target_group.api: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-south-1:621574609594:targetgroup/taskflow-prod-api/d6612e818329a7c4]
+module.service.aws_security_group.alb: Refreshing state... [id=sg-04fa119e1d3836568]
+module.service.aws_security_group.tasks: Refreshing state... [id=sg-01651e25bde663387]
+module.network.aws_eip.nat: Refreshing state... [id=eipalloc-081ce4ebdc3258f4d]
+module.network.aws_route_table.public: Refreshing state... [id=rtb-05fffaa81960cbca9]
+module.service.aws_vpc_security_group_ingress_rule.alb_http: Refreshing state... [id=sgr-00fe2d61876583b66]
+module.service.aws_vpc_security_group_egress_rule.alb_to_tasks: Refreshing state... [id=sgr-05b1fbc8c09c0f9f7]
+module.service.aws_vpc_security_group_ingress_rule.tasks_from_alb: Refreshing state... [id=sgr-0ec0e5290e9c424cc]
+module.network.aws_route_table_association.public["ap-south-1b"]: Refreshing state... [id=rtbassoc-0703a4b3dd06de672]
+module.network.aws_route_table_association.public["ap-south-1a"]: Refreshing state... [id=rtbassoc-0ec032e2a006fca76]
+module.network.aws_nat_gateway.this: Refreshing state... [id=nat-030f31d08910d638c]
+module.ecs_cluster.aws_iam_role_policy_attachment.host["arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"]: Refreshing state... [id=taskflow-prod-ecs-host/arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role]
+module.ecs_cluster.aws_iam_role_policy_attachment.host["arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"]: Refreshing state... [id=taskflow-prod-ecs-host/arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore]
+module.ecs_cluster.aws_iam_role_policy.cloudwatch_agent: Refreshing state... [id=taskflow-prod-ecs-host:cloudwatch-agent]
+module.service.aws_lb.this: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-south-1:621574609594:loadbalancer/app/taskflow-prod/73421de1baa83940]
+module.ecs_cluster.aws_iam_instance_profile.host: Refreshing state... [id=taskflow-prod-ecs-host]
+module.network.aws_iam_role_policy.flow_logs: Refreshing state... [id=taskflow-prod-vpc-flow-logs:write-rejected-flow-logs]
+module.network.aws_route_table.private: Refreshing state... [id=rtb-09cf9154004cfea7d]
+module.network.aws_vpc_endpoint.s3: Refreshing state... [id=vpce-030b23ef884e5da87]
+module.network.aws_route_table_association.private["ap-south-1b"]: Refreshing state... [id=rtbassoc-0c749865ee3f7c404]
+module.network.aws_route_table_association.private["ap-south-1a"]: Refreshing state... [id=rtbassoc-0690d6e2e11c15cf7]
+module.network.aws_flow_log.rejected: Refreshing state... [id=fl-0c2230a40da47cb14]
+module.database.aws_db_subnet_group.this: Refreshing state... [id=taskflow-prod]
+module.ecs_cluster.aws_s3_bucket_public_access_block.ansible_transfer: Refreshing state... [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.aws_s3_bucket_server_side_encryption_configuration.ansible_transfer: Refreshing state... [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.data.aws_iam_policy_document.ansible_transfer_tls_only: Reading...
+module.ecs_cluster.data.aws_iam_policy_document.ansible_transfer_tls_only: Read complete after 0s [id=2446564767]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Refreshing state... [id=taskflow-prod-ansible-621574609594]
+module.service.aws_lb_listener.http: Refreshing state... [id=arn:aws:elasticloadbalancing:ap-south-1:621574609594:listener/app/taskflow-prod/73421de1baa83940/ce579fdffa4fcb8b]
+module.ecs_cluster.aws_s3_bucket_policy.ansible_transfer: Refreshing state... [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.aws_launch_template.host: Refreshing state... [id=lt-0f2e30caa51a12cb2]
+module.database.aws_db_instance.this: Refreshing state... [id=db-SLWNUOEQ72PRFSGAIMM5FQ2SJQ]
+module.ecs_cluster.aws_autoscaling_group.hosts: Refreshing state... [id=taskflow-prod-ecs-hosts-ada6717779cc86e051b984f947]
+module.service.aws_vpc_security_group_egress_rule.tasks_to_db: Refreshing state... [id=sgr-0620fb82d6d8ce3d4]
+module.service.aws_vpc_security_group_ingress_rule.db_from_tasks: Refreshing state... [id=sgr-010d216af756b6b9e]
+module.service.aws_iam_role.execution["api"]: Refreshing state... [id=taskflow-prod-api-execution]
+module.service.aws_iam_role.execution["migrate"]: Refreshing state... [id=taskflow-prod-migrate-execution]
+module.service.data.aws_iam_policy_document.execution["api"]: Reading...
+module.service.data.aws_iam_policy_document.execution["migrate"]: Reading...
+module.service.data.aws_iam_policy_document.execution["migrate"]: Read complete after 0s [id=967221468]
+module.service.data.aws_iam_policy_document.execution["api"]: Read complete after 0s [id=2872695445]
+module.ecs_cluster.aws_ecs_capacity_provider.hosts: Refreshing state... [id=arn:aws:ecs:ap-south-1:621574609594:capacity-provider/taskflow-prod]
+module.ecs_cluster.aws_ecs_cluster_capacity_providers.this: Refreshing state... [id=taskflow-prod]
+module.service.aws_iam_role_policy.execution["migrate"]: Refreshing state... [id=taskflow-prod-migrate-execution:start-task]
+module.service.aws_iam_role_policy.execution["api"]: Refreshing state... [id=taskflow-prod-api-execution:start-task]
+module.service.aws_ecs_task_definition.migrate: Refreshing state... [id=taskflow-prod-migrate]
+module.service.aws_ecs_task_definition.api: Refreshing state... [id=taskflow-prod-api]
+module.service.aws_ecs_service.api: Refreshing state... [id=arn:aws:ecs:ap-south-1:621574609594:service/taskflow-prod/taskflow-prod-api]
+module.service.aws_appautoscaling_target.api: Refreshing state... [id=service/taskflow-prod/taskflow-prod-api]
+module.service.aws_cloudwatch_metric_alarm.api_at_max_tasks: Refreshing state... [id=taskflow-prod-api-at-max-tasks]
+module.service.aws_cloudwatch_metric_alarm.api_utilization_high["memory"]: Refreshing state... [id=taskflow-prod-api-memory-high]
+module.service.aws_cloudwatch_metric_alarm.api_utilization_high["cpu"]: Refreshing state... [id=taskflow-prod-api-cpu-high]
+aws_cloudwatch_dashboard.this: Refreshing state... [id=taskflow-prod]
+module.service.aws_appautoscaling_policy.api["memory"]: Refreshing state... [id=taskflow-prod-api-memory]
+module.service.aws_appautoscaling_policy.api["cpu"]: Refreshing state... [id=taskflow-prod-api-cpu]
+module.service.data.aws_iam_policy_document.vertical_scaler: Reading...
+module.service.data.aws_iam_policy_document.vertical_scaler: Read complete after 0s [id=4231636875]
+module.service.aws_iam_role_policy.vertical_scaler: Refreshing state... [id=taskflow-prod-vertical-scaler:scale-api]
+module.service.aws_lambda_function.vertical_scaler: Refreshing state... [id=taskflow-prod-vertical-scaler]
+module.service.aws_cloudwatch_composite_alarm.api_vertical_scale: Refreshing state... [id=taskflow-prod-api-vertical-scale]
+module.service.aws_lambda_permission.vertical_scale_alarm: Refreshing state... [id=AllowVerticalScaleAlarm]
+
+Note: Objects have changed outside of Terraform
+
+Terraform detected the following changes made outside of Terraform since the
+last "terraform apply" which may have affected this plan:
+
+  # module.service.aws_ssm_parameter.api_task_size has changed
+  ~ resource "aws_ssm_parameter" "api_task_size" {
+        id              = "/taskflow-prod/api/task-size"
+      ~ insecure_value  = jsonencode(
+          ~ {
+              ~ cpu    = 256 -> 512
+              ~ memory = 512 -> 768
+            }
+        )
+        name            = "/taskflow-prod/api/task-size"
+        # (12 unchanged attributes hidden)
+    }
+
+
+Unless you have made equivalent changes to your configuration, or ignored the
+relevant attributes using ignore_changes, the following plan may include
+actions to undo or respond to these changes.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # module.service.aws_ecs_task_definition.api must be replaced
+-/+ resource "aws_ecs_task_definition" "api" {
+      ~ arn                      = "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1" -> (known after apply)
+      ~ arn_without_revision     = "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api" -> (known after apply)
+      ~ container_definitions    = jsonencode(
+          ~ [
+              ~ {
+                  - mountPoints            = []
+                    name                   = "api"
+                  ~ portMappings           = [
+                      ~ {
+                          - hostPort      = 3000
+                            # (2 unchanged attributes hidden)
+                        },
+                    ]
+                  - systemControls         = []
+                  - volumesFrom            = []
+                    # (8 unchanged attributes hidden)
+                },
+            ]
+        )
+      ~ cpu                      = "256" -> "512" # forces replacement
+      ~ enable_fault_injection   = false -> (known after apply)
+      ~ id                       = "taskflow-prod-api" -> (known after apply)
+      ~ memory                   = "512" -> "768" # forces replacement
+      ~ revision                 = 1 -> (known after apply)
+      - tags                     = {} -> null
+        # (11 unchanged attributes hidden)
+    }
+
+Plan: 1 to add, 0 to change, 1 to destroy.
+
+Changes to Outputs:
+  ~ api_task_definition_arn     = "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1" -> (known after apply)
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.
+Releasing state lock. This may take a few moments...

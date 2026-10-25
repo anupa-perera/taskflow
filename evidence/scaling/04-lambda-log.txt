@@ -1,0 +1,10 @@
+1792921749018	INIT_START Runtime Version: python:3.13.mainlinev2.v43	Runtime Version ARN: arn:aws:lambda:ap-south-1::runtime:a0627e8616c4eaf447133f427c7419e5ce3a39ea2bc648ccb6d03d5b7f4d96e7
+
+1792921749467	START RequestId: 6e3dd699-6aa1-4d0c-891a-2ba87a1f2560 Version: $LATEST
+
+1792921750513	[INFO]	2026-10-25T09:49:10.513Z	6e3dd699-6aa1-4d0c-891a-2ba87a1f2560	Scaled taskflow-prod-api from arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1 to arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:2 ({'cpu': 512, 'memory': 768})
+
+1792921750553	END RequestId: 6e3dd699-6aa1-4d0c-891a-2ba87a1f2560
+
+1792921750553	REPORT RequestId: 6e3dd699-6aa1-4d0c-891a-2ba87a1f2560	Duration: 1085.28 ms	Billed Duration: 1531 ms	Memory Size: 128 MB	Max Memory Used: 96 MB	Init Duration: 445.56 ms	
+

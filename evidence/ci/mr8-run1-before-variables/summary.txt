@@ -1,0 +1,11 @@
+Pipeline 2986117478 (mr8-run1-before-variables): failed  https://gitlab.com/anupaxtream/taskflow/-/pipelines/2986117478
+
+build     build               success  70s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160520
+lint      ansible-lint        success  50s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160515
+lint      app-lint            success  39s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160516
+lint      terraform-validate  success  40s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160513
+lint      tflint              success  15s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160514
+plan      plan                failed   21s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160521
+security  gitleaks            success  9s   https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160518
+security  trivy-config        success  13s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160517
+test      test                success  24s  https://gitlab.com/anupaxtream/taskflow/-/jobs/17446160519

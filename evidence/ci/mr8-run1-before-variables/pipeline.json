@@ -1,0 +1,11 @@
+{
+  "id": 2986117478,
+  "status": "failed",
+  "ref": "refs/merge-requests/8/head",
+  "sha": "1abb4947ee6eaba28ef3d5093766894207110ea5",
+  "source": "merge_request_event",
+  "created_at": "2026-10-25T08:03:11.282Z",
+  "finished_at": "2026-10-25T08:06:19.849Z",
+  "duration": 180,
+  "web_url": "https://gitlab.com/anupaxtream/taskflow/-/pipelines/2986117478"
+}

@@ -1,0 +1,37 @@
+module.ecs_cluster.aws_iam_role_policy_attachment.host["arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"]: Destroying... [id=taskflow-prod-ecs-host/arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy]
+module.ecs_cluster.aws_iam_role_policy.cloudwatch_agent: Creating...
+module.ecs_cluster.aws_s3_bucket.ansible_transfer: Creating...
+module.ecs_cluster.aws_iam_role_policy_attachment.host["arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"]: Destruction complete after 1s
+module.ecs_cluster.aws_iam_role_policy.cloudwatch_agent: Creation complete after 2s [id=taskflow-prod-ecs-host:cloudwatch-agent]
+module.ecs_cluster.aws_s3_bucket.ansible_transfer: Creation complete after 3s [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.data.aws_iam_policy_document.ansible_transfer_tls_only: Reading...
+module.ecs_cluster.aws_s3_bucket_public_access_block.ansible_transfer: Creating...
+module.ecs_cluster.aws_s3_bucket_server_side_encryption_configuration.ansible_transfer: Creating...
+module.ecs_cluster.data.aws_iam_policy_document.ansible_transfer_tls_only: Read complete after 0s [id=2446564767]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Creating...
+module.ecs_cluster.aws_s3_bucket_server_side_encryption_configuration.ansible_transfer: Creation complete after 1s [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.aws_s3_bucket_public_access_block.ansible_transfer: Creation complete after 1s [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.aws_s3_bucket_policy.ansible_transfer: Creating...
+module.ecs_cluster.aws_s3_bucket_policy.ansible_transfer: Creation complete after 1s [id=taskflow-prod-ansible-621574609594]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Still creating... [00m10s elapsed]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Still creating... [00m20s elapsed]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Still creating... [00m30s elapsed]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Still creating... [00m40s elapsed]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Still creating... [00m50s elapsed]
+module.ecs_cluster.aws_s3_bucket_lifecycle_configuration.ansible_transfer: Creation complete after 58s [id=taskflow-prod-ansible-621574609594]
+
+Apply complete! Resources: 6 added, 0 changed, 1 destroyed.
+
+Outputs:
+
+alb_dns_name = "taskflow-prod-99231544.ap-south-1.elb.amazonaws.com"
+api_task_definition_arn = "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:1"
+database_address = "taskflow-prod.ctaww26sgdrl.ap-south-1.rds.amazonaws.com"
+database_app_secret_arn = "arn:aws:secretsmanager:ap-south-1:621574609594:secret:taskflow-prod/db/app-a1ef79f0d8d89a41e786d7542e-MROWFa"
+database_master_secret_arn = "arn:aws:secretsmanager:ap-south-1:621574609594:secret:rds!db-3c4e888d-2fce-4d94-a8f5-713f515a92c9-q2y9yA"
+ecr_repository_url = "621574609594.dkr.ecr.ap-south-1.amazonaws.com/taskflow"
+ecs_autoscaling_group_name = "taskflow-prod-ecs-hosts-ada6717779cc86e051b984f947"
+ecs_cluster_name = "taskflow-prod"
+ecs_service_name = "taskflow-prod-api"
+migrate_task_definition_arn = "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-migrate:1"
+vpc_id = "vpc-007bd0f3dbaa6b14b"

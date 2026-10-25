@@ -1,0 +1,133 @@
+{
+    "taskDefinition": {
+        "taskDefinitionArn": "arn:aws:ecs:ap-south-1:621574609594:task-definition/taskflow-prod-api:2",
+        "containerDefinitions": [
+            {
+                "name": "api",
+                "image": "621574609594.dkr.ecr.ap-south-1.amazonaws.com/taskflow:43aca090",
+                "cpu": 0,
+                "portMappings": [
+                    {
+                        "containerPort": 3000,
+                        "hostPort": 3000,
+                        "protocol": "tcp"
+                    }
+                ],
+                "essential": true,
+                "environment": [
+                    {
+                        "name": "DB_NAME",
+                        "value": "taskflow"
+                    },
+                    {
+                        "name": "DB_HOST",
+                        "value": "taskflow-prod.ctaww26sgdrl.ap-south-1.rds.amazonaws.com"
+                    },
+                    {
+                        "name": "DB_PORT",
+                        "value": "5432"
+                    },
+                    {
+                        "name": "LOG_LEVEL",
+                        "value": "info"
+                    }
+                ],
+                "mountPoints": [],
+                "volumesFrom": [],
+                "secrets": [
+                    {
+                        "name": "DB_USER",
+                        "valueFrom": "arn:aws:secretsmanager:ap-south-1:621574609594:secret:taskflow-prod/db/app-a1ef79f0d8d89a41e786d7542e-MROWFa:username::"
+                    },
+                    {
+                        "name": "DB_PASSWORD",
+                        "valueFrom": "arn:aws:secretsmanager:ap-south-1:621574609594:secret:taskflow-prod/db/app-a1ef79f0d8d89a41e786d7542e-MROWFa:password::"
+                    }
+                ],
+                "stopTimeout": 30,
+                "readonlyRootFilesystem": true,
+                "logConfiguration": {
+                    "logDriver": "awslogs",
+                    "options": {
+                        "awslogs-group": "/taskflow/ecs/taskflow-prod",
+                        "awslogs-region": "ap-south-1",
+                        "awslogs-stream-prefix": "api"
+                    }
+                },
+                "healthCheck": {
+                    "command": [
+                        "CMD",
+                        "/nodejs/bin/node",
+                        "dist/healthcheck.js"
+                    ],
+                    "interval": 15,
+                    "timeout": 5,
+                    "retries": 3,
+                    "startPeriod": 10
+                },
+                "systemControls": []
+            }
+        ],
+        "family": "taskflow-prod-api",
+        "taskRoleArn": "arn:aws:iam::621574609594:role/taskflow-prod-task",
+        "executionRoleArn": "arn:aws:iam::621574609594:role/taskflow-prod-api-execution",
+        "networkMode": "awsvpc",
+        "revision": 2,
+        "volumes": [],
+        "status": "ACTIVE",
+        "requiresAttributes": [
+            {
+                "name": "ecs.capability.execution-role-awslogs"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.ecr-auth"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.task-iam-role"
+            },
+            {
+                "name": "ecs.capability.container-health-check"
+            },
+            {
+                "name": "ecs.capability.execution-role-ecr-pull"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+            },
+            {
+                "name": "ecs.capability.task-eni"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+            },
+            {
+                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+            },
+            {
+                "name": "ecs.capability.secrets.asm.environment-variables"
+            },
+            {
+                "name": "ecs.capability.container-ordering"
+            }
+        ],
+        "placementConstraints": [],
+        "compatibilities": [
+            "EC2",
+            "MANAGED_INSTANCES"
+        ],
+        "requiresCompatibilities": [
+            "EC2"
+        ],
+        "cpu": "512",
+        "memory": "768",
+        "registeredAt": "2026-10-25T15:19:09.938000+05:30",
+        "registeredBy": "arn:aws:sts::621574609594:assumed-role/taskflow-prod-vertical-scaler/taskflow-prod-vertical-scaler"
+    },
+    "tags": []
+}
