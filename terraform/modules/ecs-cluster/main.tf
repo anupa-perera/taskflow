@@ -7,6 +7,8 @@ locals {
   refresh_min_healthy_percent = 50
   # Managed scaling aims for hosts fully used by placed tasks; any pending task triggers a scale-out.
   capacity_target_percent = 100
+  # Host memory and disk metrics from the CloudWatch agent (Ansible) land here.
+  host_metrics_namespace = "TaskFlow/ECSHosts"
 }
 
 # AWS publishes the current ECS-optimized AMI here; a new AMI shows up as a launch template change
@@ -55,17 +57,47 @@ resource "aws_iam_role" "host" {
 }
 
 # SSM replaces SSH: shell sessions and Ansible runs both go through Session Manager.
-# ponytail: CloudWatchAgentServerPolicy allows log writes to any group; upgrade path is a custom
-# policy scoped to the host log group.
 resource "aws_iam_role_policy_attachment" "host" {
   for_each = toset([
     "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
   ])
 
   role       = aws_iam_role.host.name
   policy_arn = each.value
+}
+
+# The CloudWatch agent, scoped to this cluster's host log group and metric namespace instead of
+# CloudWatchAgentServerPolicy (any log group, any namespace).
+data "aws_iam_policy_document" "cloudwatch_agent" {
+  statement {
+    actions   = ["logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"]
+    resources = ["${aws_cloudwatch_log_group.hosts.arn}:*"]
+  }
+
+  # PutMetricData has no resource-level permissions; the namespace condition is the scope.
+  statement {
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "cloudwatch:namespace"
+      values   = [local.host_metrics_namespace]
+    }
+  }
+
+  # Resolves the AutoScalingGroupName dimension the agent adds to every metric.
+  statement {
+    actions   = ["ec2:DescribeTags"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "cloudwatch_agent" {
+  name   = "cloudwatch-agent"
+  role   = aws_iam_role.host.id
+  policy = data.aws_iam_policy_document.cloudwatch_agent.json
 }
 
 resource "aws_iam_instance_profile" "host" {
@@ -184,7 +216,7 @@ resource "aws_autoscaling_group" "hosts" {
   }
 
   # Hosts need their permissions at boot (ECS registration, SSM), and on destroy must go first.
-  depends_on = [aws_iam_role_policy_attachment.host]
+  depends_on = [aws_iam_role_policy_attachment.host, aws_iam_role_policy.cloudwatch_agent]
 }
 
 resource "aws_ecs_capacity_provider" "hosts" {
