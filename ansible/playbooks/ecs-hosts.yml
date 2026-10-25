@@ -1,0 +1,11 @@
+- name: Configure ECS hosts
+  hosts: ecs_hosts
+  become: true
+  # A Docker restart drains its host first; one host at a time keeps the service's capacity.
+  serial: 1
+  max_fail_percentage: 0
+  roles:
+    - hardening
+    - ecs_agent
+    - docker
+    - cloudwatch_agent

@@ -1,0 +1,11 @@
+ansible_connection: amazon.aws.aws_ssm
+ansible_aws_ssm_s3_addressing_style: virtual
+
+# Must match the Terraform outputs of terraform/envs/prod (ecs_cluster module).
+ecs_cluster_name: taskflow-prod
+host_log_group: /taskflow/ec2/taskflow-prod
+host_metrics_namespace: TaskFlow/ECSHosts
+
+# The AL2023 release whose repositories dnf-automatic installs security updates from. Bump it
+# deliberately (after checking the release notes); AL2023 repositories are locked per release.
+al2023_release: "2023.12.20261016"

@@ -1,0 +1,20 @@
+# Hosts come from AWS by the tags the launch template puts on every instance, so hosts the ASG
+# adds or replaces are picked up without editing anything.
+plugin: amazon.aws.aws_ec2
+regions:
+  - ap-south-1
+filters:
+  instance-state-name: running
+  tag:Role: ecs-host
+  tag:Name: taskflow-prod-ecs-host
+# Session Manager addresses hosts by instance ID; they have no reachable IP.
+hostnames:
+  - instance-id
+compose:
+  ansible_host: instance_id
+  ansible_aws_ssm_region: placement.region
+  ansible_aws_ssm_bucket_name: "'taskflow-prod-ansible-' ~ network_interfaces[0].owner_id"
+# Only ec2_tags; the older `tags` host variable is deprecated.
+use_deprecated_tags: false
+groups:
+  ecs_hosts: "ec2_tags.Role == 'ecs-host'"

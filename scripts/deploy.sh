@@ -16,6 +16,8 @@ POLL_SECONDS=10
 
 # The Windows AWS CLI ends lines with CRLF, which breaks the comparisons below.
 aws_text() { aws "$@" --output text | tr -d '\r'; }
+# Git Bash would rewrite the SSM parameter name (/taskflow-prod/...) into a Windows path.
+export MSYS_NO_PATHCONV=1
 
 # The service's subnets and security group are the only ones that can reach the database.
 network="$(aws ecs describe-services --cluster "$cluster" --services "$service" \
@@ -60,6 +62,19 @@ read -r exit_code stopped_reason <<<"$result"
 if [ "$exit_code" != "0" ]; then
   echo "The migration failed (exit code $exit_code: $stopped_reason)." >&2
   echo "Logs: stream migrate/migrate/${task_arn##*/} in the task log group." >&2
+  exit 1
+fi
+
+# Vertical scaling may have resized the service since `terraform apply` registered this revision;
+# rolling it out would undo that. Re-running the release registers a revision at the new size.
+task_size_parameter="${TASK_SIZE_PARAMETER:-/$cluster/api/task-size}"
+recorded_size="$(aws_text ssm get-parameter --name "$task_size_parameter" --query 'Parameter.Value')"
+release_size="$(aws_text ecs describe-task-definition --task-definition "$api_task_definition" \
+  --query 'taskDefinition.[cpu, memory]')"
+read -r release_cpu release_memory <<<"$release_size"
+if [ "$recorded_size" != "{\"cpu\":$release_cpu,\"memory\":$release_memory}" ]; then
+  echo "The service's size is now $recorded_size, but this revision has cpu $release_cpu and" >&2
+  echo "memory $release_memory. Re-run the release to register a revision at the current size." >&2
   exit 1
 fi
 

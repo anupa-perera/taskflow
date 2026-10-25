@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[Unit]
+Description=TaskFlow host firewall (nftables table inet taskflow_host)
+Wants=network-pre.target
+Before=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/nft -f /etc/nftables/taskflow-host.nft
+ExecReload=/usr/sbin/nft -f /etc/nftables/taskflow-host.nft
+ExecStop=/usr/sbin/nft delete table inet taskflow_host
+
+[Install]
+WantedBy=multi-user.target

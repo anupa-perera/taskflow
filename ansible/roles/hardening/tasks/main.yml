@@ -1,0 +1,8 @@
+- name: Automatic security updates
+  ansible.builtin.import_tasks: updates.yml
+
+- name: SSH
+  ansible.builtin.import_tasks: ssh.yml
+
+- name: Host firewall
+  ansible.builtin.import_tasks: firewall.yml

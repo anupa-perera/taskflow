@@ -1,0 +1,99 @@
+# Restarting Docker stops every container on the host (ecs.service is PartOf docker.service), so
+# the container instance is drained first and its tasks move to other hosts.
+
+- name: Find this host's container instance
+  ansible.builtin.uri:
+    url: "{{ docker_ecs_introspection_url }}"
+    return_content: true
+  register: docker_ecs_metadata
+  until: docker_ecs_metadata.status == 200
+  retries: "{{ docker_poll_retries }}"
+  delay: "{{ docker_poll_seconds }}"
+
+- name: Name the container instance for the AWS CLI
+  ansible.builtin.set_fact:
+    docker_instance_args: >-
+      --cluster {{ docker_ecs_metadata.json.Cluster }}
+      --container-instances {{ docker_ecs_metadata.json.ContainerInstanceArn }}
+
+- name: Read the container instance's status
+  ansible.builtin.command: >-
+    aws ecs describe-container-instances {{ docker_instance_args }}
+    --query 'containerInstances[0].status' --output text
+  delegate_to: localhost
+  become: false
+  register: docker_instance_status
+  changed_when: false
+
+# Someone else (an instance refresh, an operator) is draining it; leave that alone.
+- name: Require an active container instance
+  ansible.builtin.assert:
+    that: docker_instance_status.stdout | trim == "ACTIVE"
+    fail_msg: >-
+      {{ docker_ecs_metadata.json.ContainerInstanceArn }} is {{ docker_instance_status.stdout | trim }},
+      not ACTIVE; rerun once it is back in service or replaced.
+
+- name: Drain, restart Docker and return to service
+  block:
+    - name: Record that this role is draining the host
+      ansible.builtin.copy:
+        dest: "{{ docker_drain_marker }}"
+        content: "{{ docker_instance_args }}\n"
+        owner: root
+        group: root
+        mode: "0600"
+
+    # The CLI exits 0 even when ECS reports a per-instance failure, so the response is checked.
+    - name: Drain the container instance
+      ansible.builtin.command: >-
+        aws ecs update-container-instances-state {{ docker_instance_args }} --status DRAINING
+        --query '[length(failures), containerInstances[0].status]' --output text
+      delegate_to: localhost
+      become: false
+      register: docker_drained
+      changed_when: true
+      failed_when: docker_drained.rc != 0 or docker_drained.stdout.split() != ['0', 'DRAINING']
+
+    # ECS counts a task as gone once it is told to stop; only the runtime knows when it has.
+    - name: Wait for the task containers to stop
+      ansible.builtin.command: docker ps --quiet --filter label=com.amazonaws.ecs.task-arn
+      register: docker_task_containers
+      until: docker_task_containers.stdout | length == 0
+      retries: "{{ docker_poll_retries }}"
+      delay: "{{ docker_poll_seconds }}"
+      changed_when: false
+
+    - name: Restart Docker
+      ansible.builtin.systemd_service:
+        name: docker
+        state: restarted
+
+    - name: Start the ECS agent
+      ansible.builtin.systemd_service:
+        name: ecs
+        state: started
+
+    # The local endpoint answers before the agent has reconnected to ECS; ask ECS instead.
+    - name: Wait for the ECS agent to reconnect
+      ansible.builtin.command: >-
+        aws ecs describe-container-instances {{ docker_instance_args }}
+        --query 'containerInstances[0].agentConnected' --output text
+      delegate_to: localhost
+      become: false
+      register: docker_agent_connected
+      until: docker_agent_connected.stdout | trim == "True"
+      retries: "{{ docker_poll_retries }}"
+      delay: "{{ docker_poll_seconds }}"
+      changed_when: false
+
+    - name: Record the daemon.json Docker now runs
+      ansible.builtin.include_role:
+        name: config_marker
+        tasks_from: record
+      vars:
+        config_marker_name: docker-daemon
+        config_marker_files: [/etc/docker/daemon.json]
+  # Undo our own drain whatever happened; if this fails too, the marker makes the next run retry.
+  always:
+    - name: Return the container instance to service
+      ansible.builtin.include_tasks: reactivate.yml

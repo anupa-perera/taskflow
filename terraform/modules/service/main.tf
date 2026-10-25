@@ -68,8 +68,8 @@ resource "aws_ecs_task_definition" "api" {
   family                   = "${var.name}-api"
   requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
-  cpu                      = var.task_cpu
-  memory                   = var.task_memory_mib
+  cpu                      = local.api_task_size.cpu
+  memory                   = local.api_task_size.memory
   execution_role_arn       = aws_iam_role.execution["api"].arn
   task_role_arn            = aws_iam_role.task.arn
   # Keeps earlier revisions registered, so a rollback can return to one.

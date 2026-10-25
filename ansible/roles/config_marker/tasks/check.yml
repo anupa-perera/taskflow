@@ -1,0 +1,12 @@
+# Sets config_marker_check.rc: 0 when the config last recorded as applied matches the files now,
+# 1 when it must be applied again (changed since, never applied, or a previous apply failed).
+- name: Check the applied config for {{ config_marker_name }}
+  ansible.builtin.shell: >-
+    set -o pipefail;
+    test "$(cat {{ config_marker_dir }}/{{ config_marker_name }}.applied 2>/dev/null)"
+    = "$(cat {{ config_marker_files | join(' ') }} | sha256sum)"
+  args:
+    executable: /bin/bash
+  register: config_marker_check
+  changed_when: false
+  failed_when: config_marker_check.rc not in [0, 1]

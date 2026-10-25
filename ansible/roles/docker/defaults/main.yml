@@ -1,0 +1,13 @@
+# Tasks log through awslogs; this bounds what uses the default driver (the ECS agent container).
+docker_daemon_config:
+  log-driver: json-file
+  log-opts:
+    max-size: 10m
+    max-file: "3"
+
+docker_ecs_introspection_url: http://127.0.0.1:51678/v1/metadata
+# Present only while this role has the host drained; holds the container instance to reactivate.
+docker_drain_marker: /var/lib/taskflow/docker-drain.owned
+docker_poll_seconds: 10
+# Five minutes: the service starts replacements elsewhere, then the ALB drains each task (30 s).
+docker_poll_retries: 30

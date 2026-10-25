@@ -47,6 +47,7 @@ module "service" {
   private_subnet_ids = module.network.private_subnet_ids
 
   cluster_arn            = module.ecs_cluster.cluster_arn
+  cluster_name           = module.ecs_cluster.cluster_name
   capacity_provider_name = module.ecs_cluster.capacity_provider_name
 
   repository_url = module.ecr.repository_url

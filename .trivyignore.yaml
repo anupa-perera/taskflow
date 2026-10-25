@@ -38,3 +38,12 @@ misconfigurations:
       The ALB is the public entry point of the API by design. Tasks and the database sit in private
       subnets behind it, reachable only through their security group references.
     expired_at: 2027-04-24
+
+  - id: AWS-0132
+    paths:
+      - terraform/modules/ecs-cluster/config-management.tf
+    statement: >-
+      The Ansible transfer bucket holds only transient module files, which expire after a day. It
+      is private and TLS-only, and hosts read through presigned URLs. A customer-managed key would
+      add a KMS dependency to every Ansible task for no meaningful protection.
+    expired_at: 2027-04-24
