@@ -169,6 +169,8 @@ ansible-lint:
     PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
     # The checkout is world-writable, and Ansible ignores an ansible.cfg found in such a directory.
     ANSIBLE_CONFIG: $CI_PROJECT_DIR/ansible/ansible.cfg
+    GALAXY_ATTEMPTS: "3"
+    GALAXY_RETRY_SECONDS: "15"
   cache:
     key:
       files: [ansible/requirements.txt, ansible/requirements.yml]
@@ -176,7 +178,14 @@ ansible-lint:
   script:
     # The same toolchain ansible/Dockerfile installs, so lint sees what the controller runs.
     - pip install --root-user-action=ignore --require-hashes -r ansible/requirements.txt
-    - ansible-galaxy collection install -r ansible/requirements.yml -p /usr/share/ansible/collections
+    # Galaxy returns occasional 5xx errors; retry the download, not the whole job, so a real lint
+    # failure still fails once.
+    - |
+      for attempt in $(seq 1 "$GALAXY_ATTEMPTS"); do
+        ansible-galaxy collection install -r ansible/requirements.yml -p /usr/share/ansible/collections && break
+        [ "$attempt" -lt "$GALAXY_ATTEMPTS" ] || exit 1
+        sleep "$GALAXY_RETRY_SECONDS"
+      done
     - cd ansible
     - ansible-lint
 
