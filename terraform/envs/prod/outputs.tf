@@ -52,3 +52,8 @@ output "migrate_task_definition_arn" {
   description = "Migration revision scripts/deploy.sh runs before the rollout."
   value       = module.service.migrate_task_definition_arn
 }
+
+output "vertical_scaling" {
+  description = "Vertical scaling alarm, Lambda and the SSM parameter holding the API task size."
+  value       = module.service.vertical_scaling
+}
