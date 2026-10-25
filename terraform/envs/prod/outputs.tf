@@ -57,3 +57,8 @@ output "vertical_scaling" {
   description = "Vertical scaling alarm, Lambda and the SSM parameter holding the API task size."
   value       = module.service.vertical_scaling
 }
+
+output "dashboard_name" {
+  description = "CloudWatch dashboard of the service."
+  value       = aws_cloudwatch_dashboard.this.dashboard_name
+}
