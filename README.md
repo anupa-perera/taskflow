@@ -112,18 +112,18 @@ In scope: everything the brief requires, plus both bonus items.
 
 Deliberate non-goals and future improvements, each a known gap rather than an oversight:
 
-| Non-goal                                               | Why                                                                                                                      | What production would do                                                                                                           |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| HTTPS and a custom domain                              | Requires an owned domain.                                                                                                | ACM certificate on the ALB, Route 53 alias, HTTP to HTTPS redirect.                                                                |
-| Multi-AZ RDS, one NAT gateway per AZ                   | Roughly doubles the cost of both. Each is a single point of failure here.                                                | Enable `multi_az` and one NAT gateway per AZ.                                                                                      |
-| Additional environments                                | The brief asks for `envs/prod` only.                                                                                     | Add `terraform/envs/staging` reusing the same modules.                                                                             |
-| API authentication                                     | Internal service per the scenario.                                                                                       | OIDC/JWT at the ALB or in the app.                                                                                                 |
-| OIDC federation for CI                                 | Static keys chosen for simplicity.                                                                                       | GitLab OIDC to a short-lived IAM role, no stored keys.                                                                             |
-| Least-privilege CI deploy user | Cut for time. `taskflow-ci-deploy` has broad permissions; only protected `main` pipelines receive its keys, and plans use a separate read-only user. | A policy limited to the services and resource prefixes the stack manages, or an OIDC role with that policy. |
-| Configuring hosts the ASG launches later automatically | Cut for time. Until then, a host added by scaling or replacement is configured by the next pipeline's `configure` stage. | An EventBridge rule on the ASG's successful-launch event triggers the configure job for that instance (ADR 0001).                  |
-| Node.js runtime security-release check                 | Cut for time. Trivy cannot see the Node binary in the distroless image, so its patch level is not scanned.               | A CI job comparing the image's `node --version` with the security releases in nodejs.org's release index, failing on a missed fix. |
-| Integration tests against a real database              | Unit tests with a coverage gate meet the brief.                                                                          | Postgres service container in CI.                                                                                                  |
-| Grafana, WAF, blue/green, image signing                | Beyond the brief.                                                                                                        | Add as the service's risk profile demands.                                                                                         |
+| Non-goal                                               | Why                                                                                                                                                  | What production would do                                                                                                           |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| HTTPS and a custom domain                              | Requires an owned domain.                                                                                                                            | ACM certificate on the ALB, Route 53 alias, HTTP to HTTPS redirect.                                                                |
+| Multi-AZ RDS, one NAT gateway per AZ                   | Roughly doubles the cost of both. Each is a single point of failure here.                                                                            | Enable `multi_az` and one NAT gateway per AZ.                                                                                      |
+| Additional environments                                | The brief asks for `envs/prod` only.                                                                                                                 | Add `terraform/envs/staging` reusing the same modules.                                                                             |
+| API authentication                                     | Internal service per the scenario.                                                                                                                   | OIDC/JWT at the ALB or in the app.                                                                                                 |
+| OIDC federation for CI                                 | Static keys chosen for simplicity.                                                                                                                   | GitLab OIDC to a short-lived IAM role, no stored keys.                                                                             |
+| Least-privilege CI deploy user                         | Cut for time. `taskflow-ci-deploy` has broad permissions; only protected `main` pipelines receive its keys, and plans use a separate read-only user. | A policy limited to the services and resource prefixes the stack manages, or an OIDC role with that policy.                        |
+| Configuring hosts the ASG launches later automatically | Cut for time. Until then, a host added by scaling or replacement is configured by the next pipeline's `configure` stage.                             | An EventBridge rule on the ASG's successful-launch event triggers the configure job for that instance (ADR 0001).                  |
+| Node.js runtime security-release check                 | Cut for time. Trivy cannot see the Node binary in the distroless image, so its patch level is not scanned.                                           | A CI job comparing the image's `node --version` with the security releases in nodejs.org's release index, failing on a missed fix. |
+| Integration tests against a real database              | Unit tests with a coverage gate meet the brief.                                                                                                      | Postgres service container in CI.                                                                                                  |
+| Grafana, WAF, blue/green, image signing                | Beyond the brief.                                                                                                                                    | Add as the service's risk profile demands.                                                                                         |
 
 ## DevOps vs. Platform Engineering
 
@@ -169,11 +169,11 @@ Scanners do not replace security engineers. That is why DevSecOps matters. DevSe
 
 This project applies DevSecOps principles at each layer:
 
-- **Code and secrets:** gitleaks scans the history for credentials before each push and in the
-  pipeline's security stage; `.env` files and Terraform state are git-ignored from the start.
+- **Code and secrets:** gitleaks scans the whole git history for credentials in the pipeline's
+  security stage; `.env` files and Terraform state are git-ignored from the start.
 - **Dependencies and images:** Trivy scans the container image and fails the pipeline on HIGH or
-  CRITICAL findings. A separate check covers the Node.js runtime, which Trivy cannot see in a
-  distroless image (ADR 0003).
+  CRITICAL findings. It cannot see the Node.js runtime in a distroless image (ADR 0003); a check
+  against Node.js security releases is listed under future improvements.
 - **Infrastructure:** Trivy's configuration scanner and tflint review every Terraform change.
   Accepted exceptions are written down with a reason and an expiry date in `.trivyignore.yaml`, so
   risk acceptance is reviewable rather than silent.
