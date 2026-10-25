@@ -13,6 +13,7 @@ cluster="$1" service="$2" migrate_task_definition="$3" api_task_definition="$4"
 # Covers a host scale-out for the task (a few minutes) plus the migration's own 5-minute timeout.
 MIGRATION_DEADLINE_SECONDS="${MIGRATION_DEADLINE_SECONDS:-600}"
 POLL_SECONDS=10
+ROLLOUT_STATE_DEADLINE_SECONDS=120
 
 # The Windows AWS CLI ends lines with CRLF, which breaks the comparisons below.
 aws_text() { aws "$@" --output text | tr -d '\r'; }
@@ -84,10 +85,16 @@ aws ecs update-service --cluster "$cluster" --service "$service" \
 aws ecs wait services-stable --cluster "$cluster" --services "$service"
 
 # A circuit-breaker rollback also ends stable, so check the service runs what was deployed.
-# shellcheck disable=SC2016 # JMESPath literals use backticks.
-primary="$(aws_text ecs describe-services --cluster "$cluster" --services "$service" \
-  --query 'services[0].deployments[?status==`PRIMARY`] | [0].[taskDefinition, rolloutState]')"
-read -r running_task_definition rollout_state <<<"$primary"
+# services-stable can return seconds before ECS marks the rollout COMPLETED, so wait it out.
+deadline=$((SECONDS + ROLLOUT_STATE_DEADLINE_SECONDS))
+while :; do
+  # shellcheck disable=SC2016 # JMESPath literals use backticks.
+  primary="$(aws_text ecs describe-services --cluster "$cluster" --services "$service" \
+    --query 'services[0].deployments[?status==`PRIMARY`] | [0].[taskDefinition, rolloutState]')"
+  read -r running_task_definition rollout_state <<<"$primary"
+  if [ "$rollout_state" != "IN_PROGRESS" ] || [ "$SECONDS" -ge "$deadline" ]; then break; fi
+  sleep "$POLL_SECONDS"
+done
 if [ "$running_task_definition" != "$api_task_definition" ] || [ "$rollout_state" != "COMPLETED" ]; then
   echo "The rollout did not complete: the service runs $running_task_definition ($rollout_state)." >&2
   exit 1
