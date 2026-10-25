@@ -34,6 +34,14 @@ in AWS: health checks, shutdown during deployments, schema migrations, database 
 
 ## Consequences
 
+- **A rollback restores code, not schema.** Migrations are forward-only: rolling back moves the
+  service to the previous task definition and leaves the schema as the new release made it. Schema
+  changes therefore follow expand/contract: add tables or columns in one release, stop using the
+  old ones, and drop them in a later release once no deployed or rollback revision reads them.
+  `down` migrations are for local development only; in production they can destroy data the new
+  version has already written. Data damage is repaired by a point-in-time restore to the restore
+  point `scripts/deploy.sh` logs before migrating.
+
 - A database outage leaves tasks running and returning `5xx` for data requests, instead of ECS
   restarting every task in a loop. `/health` cannot prove the database is reachable, so the
   pipeline's smoke test must also exercise a database-backed endpoint.
