@@ -75,7 +75,7 @@ default:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"
 
-# One pipeline at a time changes production, and a newer push never cancels it midway.
+# One job at a time changes production, and a newer push never cancels it midway.
 .changes-production:
   extends: .release
   resource_group: production
@@ -363,6 +363,16 @@ deploy:
     - job: configure
       artifacts: false
   script:
+    # The resource group locks single jobs, so a newer pipeline may have applied after this one.
+    # Deploying this revision then would roll production back; the newer pipeline deploys instead.
+    - |
+      family="${API_TASK_DEFINITION_ARN##*/}"
+      latest="$(aws ecs describe-task-definition --task-definition "${family%:*}" \
+        --query taskDefinition.taskDefinitionArn --output text)"
+      if [ "$latest" != "$API_TASK_DEFINITION_ARN" ]; then
+        echo "A newer apply registered $latest; not deploying the older $API_TASK_DEFINITION_ARN." >&2
+        exit 1
+      fi
     - scripts/deploy.sh "$ECS_CLUSTER_NAME" "$ECS_SERVICE_NAME" "$MIGRATE_TASK_DEFINITION_ARN" "$API_TASK_DEFINITION_ARN"
 
 # --- smoke-test ------------------------------------------------------------------------------
