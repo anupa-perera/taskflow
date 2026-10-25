@@ -1,0 +1,381 @@
+# TaskFlow delivery pipeline. Merge requests run lint, security, test, build and plan; the default
+# branch adds a manual apply, then configure, deploy and a smoke test.
+#
+# CI/CD variables (Settings > CI/CD > Variables), all masked:
+#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY             protected: the deploy user (image push, apply onwards)
+#   PLAN_AWS_ACCESS_KEY_ID, PLAN_AWS_SECRET_ACCESS_KEY   not protected: a read-only user, so merge requests can plan
+#   AWS_ACCOUNT_ID                                       not protected: kept out of this public repository
+#   GITLAB_API_TOKEN                                     not protected: posts the plan as an MR note (api scope)
+
+stages:
+  - lint
+  - security
+  - test
+  - build
+  - plan
+  - apply
+  - configure
+  - deploy
+  - smoke-test
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+variables:
+  AWS_REGION: ap-south-1
+  # The AWS CLI v1 in the Ansible controller reads only this one.
+  AWS_DEFAULT_REGION: $AWS_REGION
+  TF_STATE_BUCKET: taskflow-tfstate-${AWS_ACCOUNT_ID}-${AWS_REGION}
+  ECR_REGISTRY: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+  ECR_REPOSITORY: taskflow
+  TF_ROOT: terraform/envs/prod
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TF_PLUGIN_CACHE_DIR: $CI_PROJECT_DIR/.cache/terraform-plugins
+  # Terraform matches scripts/terraform.sh; the Node and Python digests match app/Dockerfile and
+  # ansible/Dockerfile, so CI lints and tests on the images that ship.
+  TERRAFORM_IMAGE: hashicorp/terraform:1.17.0
+  TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.65.0
+  TRIVY_IMAGE: aquasec/trivy:0.76.1
+  GITLEAKS_IMAGE: zricethezav/gitleaks:v8.28.0
+  NODE_IMAGE: node:24-trixie-slim@sha256:43b9ba1142b8dcf33fa8f922ca1be85714adc444e0586c7cf7726daaeabc1bea
+  PYTHON_IMAGE: python:3.13-slim-trixie@sha256:d98cc29d3266e535dd9da1099688d9cb3ca4753813571e071763d17725460962
+  DOCKER_IMAGE: docker:29.9.0-cli
+  DIND_IMAGE: docker:29.9.0-dind
+  AWS_CLI_IMAGE: amazon/aws-cli:2.37.12
+
+default:
+  # A newer push cancels the older pipeline; jobs that change AWS opt out below.
+  interruptible: true
+
+# --- Templates -------------------------------------------------------------------------------
+
+.on-app-change:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [app/**/*, .gitlab-ci.yml]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.on-terraform-change:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [terraform/**/*, .gitlab-ci.yml]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.on-ansible-change:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [ansible/**/*, .gitlab-ci.yml]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Protected variables (the deploy keys) exist only in pipelines on protected branches.
+.release:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"
+
+# One pipeline at a time changes production, and a newer push never cancels it midway.
+.changes-production:
+  extends: .release
+  resource_group: production
+  interruptible: false
+
+.terraform:
+  image:
+    name: $TERRAFORM_IMAGE
+    entrypoint: [""]
+  cache: &terraform-cache
+    key:
+      files:
+        [
+          terraform/envs/prod/.terraform.lock.hcl,
+          terraform/bootstrap/.terraform.lock.hcl,
+        ]
+    paths: [.cache/terraform-plugins]
+    policy: pull
+  before_script:
+    - mkdir -p "$TF_PLUGIN_CACHE_DIR"
+
+.terraform-init: &terraform-init
+  - ': "${AWS_ACCOUNT_ID:?set the AWS_ACCOUNT_ID CI/CD variable}"'
+  - terraform -chdir="$TF_ROOT" init -backend-config="bucket=$TF_STATE_BUCKET" -backend-config="region=$AWS_REGION"
+
+.node:
+  image: $NODE_IMAGE
+  variables:
+    COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+    YARN_ENABLE_GLOBAL_CACHE: "false"
+    YARN_CACHE_FOLDER: $CI_PROJECT_DIR/.cache/yarn
+  cache:
+    key:
+      files: [app/yarn.lock]
+    paths: [.cache/yarn]
+  before_script:
+    - corepack enable
+    - cd app
+    - yarn install --immutable
+
+.docker:
+  image: $DOCKER_IMAGE
+  services:
+    - name: $DIND_IMAGE
+      alias: docker
+      # Docker Hub pulls inside the build go through Google's mirror, avoiding anonymous pull limits.
+      command: ["--registry-mirror=https://mirror.gcr.io"]
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: /certs
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: /certs/client
+
+# --- lint ------------------------------------------------------------------------------------
+
+terraform-validate:
+  stage: lint
+  extends: [.terraform, .on-terraform-change]
+  cache:
+    <<: *terraform-cache
+    policy: pull-push
+  script:
+    - terraform fmt -check -recursive -diff terraform
+    - |
+      for root in terraform/bootstrap "$TF_ROOT"; do
+        terraform -chdir="$root" init -backend=false
+        terraform -chdir="$root" validate
+      done
+
+tflint:
+  stage: lint
+  extends: .on-terraform-change
+  image:
+    name: $TFLINT_IMAGE
+    entrypoint: [""]
+  variables:
+    TFLINT_PLUGIN_DIR: $CI_PROJECT_DIR/.cache/tflint-plugins
+  cache:
+    key:
+      files: [terraform/.tflint.hcl]
+    paths: [.cache/tflint-plugins]
+  script:
+    - tflint --init --config "$CI_PROJECT_DIR/terraform/.tflint.hcl"
+    - tflint --chdir terraform --recursive --call-module-type=all --config "$CI_PROJECT_DIR/terraform/.tflint.hcl"
+
+ansible-lint:
+  stage: lint
+  extends: .on-ansible-change
+  image: $PYTHON_IMAGE
+  variables:
+    PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+    # The checkout is world-writable, and Ansible ignores an ansible.cfg found in such a directory.
+    ANSIBLE_CONFIG: $CI_PROJECT_DIR/ansible/ansible.cfg
+  cache:
+    key:
+      files: [ansible/requirements.txt, ansible/requirements.yml]
+    paths: [.cache/pip]
+  script:
+    # The same toolchain ansible/Dockerfile installs, so lint sees what the controller runs.
+    - pip install --root-user-action=ignore --require-hashes -r ansible/requirements.txt
+    - ansible-galaxy collection install -r ansible/requirements.yml -p /usr/share/ansible/collections
+    - cd ansible
+    - ansible-lint
+
+app-lint:
+  stage: lint
+  extends: [.node, .on-app-change]
+  script:
+    - yarn lint
+    - yarn format:check
+    - yarn typecheck
+
+# --- security --------------------------------------------------------------------------------
+
+trivy-config:
+  stage: security
+  image:
+    name: $TRIVY_IMAGE
+    entrypoint: [""]
+  script:
+    - trivy config --ignorefile .trivyignore.yaml --severity HIGH,CRITICAL --exit-code 1
+      --skip-dirs app/node_modules --skip-dirs '**/.terraform' .
+
+gitleaks:
+  stage: security
+  image:
+    name: $GITLEAKS_IMAGE
+    entrypoint: [""]
+  variables:
+    # Full history: a secret removed in a later commit is still in the repository.
+    GIT_DEPTH: "0"
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - gitleaks git --redact --verbose .
+
+# --- test ------------------------------------------------------------------------------------
+
+test:
+  stage: test
+  extends: [.node, .on-app-change]
+  script:
+    - yarn test
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: app/coverage/cobertura-coverage.xml
+
+# --- build -----------------------------------------------------------------------------------
+
+# The Trivy image scan runs here, between build and push, so an image with HIGH or CRITICAL
+# findings never reaches ECR. Merge requests build and scan; the default branch also pushes.
+build:
+  stage: build
+  extends: .docker
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes: [app/**/*, .gitlab-ci.yml]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"
+      variables:
+        PUSH_IMAGE: "true"
+  variables:
+    LOCAL_IMAGE: $ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA
+    REMOTE_IMAGE: $ECR_REGISTRY/$ECR_REPOSITORY:$CI_COMMIT_SHORT_SHA
+  script:
+    - aws() { docker run --rm -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_REGION "$AWS_CLI_IMAGE" "$@"; }
+    - |
+      if [ "${PUSH_IMAGE:-}" = true ] && aws ecr describe-images --repository-name "$ECR_REPOSITORY" \
+        --image-ids imageTag="$CI_COMMIT_SHORT_SHA" >/dev/null 2>&1; then
+        echo "$CI_COMMIT_SHORT_SHA is already in ECR; tags are immutable, so there is nothing to push."
+        exit 0
+      fi
+    # Without these flags Docker pushes an OCI index, which ECR scan-on-push skips.
+    - docker build app/ --provenance=false --sbom=false --tag "$LOCAL_IMAGE"
+    - docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$TRIVY_IMAGE" image
+      --severity HIGH,CRITICAL --exit-code 1 --no-progress "$LOCAL_IMAGE"
+    - |
+      if [ "${PUSH_IMAGE:-}" = true ]; then
+        aws ecr get-login-password | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+        docker tag "$LOCAL_IMAGE" "$REMOTE_IMAGE"
+        docker push "$REMOTE_IMAGE"
+      fi
+
+# --- plan ------------------------------------------------------------------------------------
+
+plan:
+  stage: plan
+  extends: [.terraform, .on-terraform-change]
+  script:
+    # Always the read-only identity, even on the default branch: planning never needs write access.
+    - export AWS_ACCESS_KEY_ID="${PLAN_AWS_ACCESS_KEY_ID:?set the PLAN_AWS_ACCESS_KEY_ID CI/CD variable}"
+    - export AWS_SECRET_ACCESS_KEY="${PLAN_AWS_SECRET_ACCESS_KEY:?set the PLAN_AWS_SECRET_ACCESS_KEY CI/CD variable}"
+    - *terraform-init
+    # A read-only identity cannot take the state lock. Skipping it is safe: apply refuses a saved
+    # plan once the state has changed since it was made.
+    - terraform -chdir="$TF_ROOT" plan -lock=false -var "image_tag=$CI_COMMIT_SHORT_SHA" -out=plan.tfplan
+    - terraform -chdir="$TF_ROOT" show -no-color plan.tfplan > plan.txt
+    - |
+      if [ "$CI_PIPELINE_SOURCE" = merge_request_event ]; then
+        : "${GITLAB_API_TOKEN:?set the GITLAB_API_TOKEN CI/CD variable to post the plan as an MR note}"
+        apk add --no-cache --quiet curl
+        {
+          echo "#### Terraform plan for $CI_COMMIT_SHORT_SHA"
+          echo
+          grep -E '^(Plan:|No changes\.)' plan.txt || true
+          echo
+          echo "<details><summary>Full plan</summary>"
+          echo
+          echo '```'
+          cat plan.txt
+          echo '```'
+          echo "</details>"
+        } > note.md
+        curl --fail --silent --show-error --output /dev/null --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+          --data-urlencode "body@note.md" \
+          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/notes"
+      fi
+  artifacts:
+    # The saved plan holds secret values from the state; keep it from public visitors.
+    access: developer
+    expire_in: 1 week
+    paths:
+      - $TF_ROOT/plan.tfplan
+      - plan.txt
+
+# --- apply -----------------------------------------------------------------------------------
+
+apply:
+  stage: apply
+  extends: [.terraform, .changes-production]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"
+      when: manual
+  # Later stages wait for this gate instead of running past it.
+  allow_failure: false
+  needs: [plan]
+  script:
+    - *terraform-init
+    - terraform -chdir="$TF_ROOT" apply plan.tfplan
+    - |
+      output() { terraform -chdir="$TF_ROOT" output -raw "$1"; }
+      {
+        echo "ECS_CLUSTER_NAME=$(output ecs_cluster_name)"
+        echo "ECS_SERVICE_NAME=$(output ecs_service_name)"
+        echo "MIGRATE_TASK_DEFINITION_ARN=$(output migrate_task_definition_arn)"
+        echo "API_TASK_DEFINITION_ARN=$(output api_task_definition_arn)"
+        echo "ALB_DNS_NAME=$(output alb_dns_name)"
+      } > release.env
+      cat release.env
+  artifacts:
+    reports:
+      dotenv: release.env
+
+# --- configure -------------------------------------------------------------------------------
+
+configure:
+  stage: configure
+  extends: [.docker, .changes-production]
+  needs:
+    - job: apply
+      artifacts: false
+  script:
+    - docker build --tag taskflow-ansible ansible/
+    # The repository is copied in rather than mounted: a mount would resolve on the Docker
+    # service's filesystem, not this job's.
+    - |
+      container="$(docker create -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_REGION \
+        -e AWS_DEFAULT_REGION -e ANSIBLE_CONFIG=/work/ansible/ansible.cfg \
+        taskflow-ansible ansible-playbook playbooks/ecs-hosts.yml)"
+    - docker cp ansible/. "$container:/work/ansible"
+    - docker start --attach "$container"
+
+# --- deploy ----------------------------------------------------------------------------------
+
+deploy:
+  stage: deploy
+  extends: .changes-production
+  image:
+    name: $AWS_CLI_IMAGE
+    entrypoint: [""]
+  environment: production
+  needs:
+    - apply
+    - job: configure
+      artifacts: false
+  script:
+    - scripts/deploy.sh "$ECS_CLUSTER_NAME" "$ECS_SERVICE_NAME" "$MIGRATE_TASK_DEFINITION_ARN" "$API_TASK_DEFINITION_ARN"
+
+# --- smoke-test ------------------------------------------------------------------------------
+
+smoke-test:
+  stage: smoke-test
+  extends: .release
+  image:
+    name: $AWS_CLI_IMAGE
+    entrypoint: [""]
+  needs:
+    - apply
+    - job: deploy
+      artifacts: false
+  script:
+    - scripts/smoke-test.sh "$ALB_DNS_NAME"
