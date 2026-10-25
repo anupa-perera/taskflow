@@ -300,6 +300,8 @@ plan:
     expire_in: 1 week
     paths:
       - $TF_ROOT/plan.tfplan
+      # Zipped at plan time by the archive provider; the saved plan expects it at apply.
+      - terraform/modules/service/vertical_scaler.zip
       - plan.txt
 
 # --- apply -----------------------------------------------------------------------------------
