@@ -11,6 +11,8 @@ output "vpc_cidr" {
 output "public_subnet_ids" {
   description = "Subnets for internet-facing resources (the ALB), one per AZ, ordered by AZ name."
   value       = [for az in keys(var.availability_zones) : aws_subnet.public[az].id]
+  # An internet-facing ALB can only be created once its subnets route to the internet gateway.
+  depends_on = [aws_route_table_association.public, aws_internet_gateway.this]
 }
 
 output "private_subnet_ids" {

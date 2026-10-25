@@ -15,3 +15,13 @@ variable "database_final_snapshot" {
   type        = bool
   default     = true
 }
+
+variable "image_tag" {
+  description = "Commit SHA of the TaskFlow image to register task definitions for."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[0-9a-f]{7,40}$", var.image_tag))
+    error_message = "image_tag must be a commit SHA (7-40 lowercase hex characters), never \"latest\"."
+  }
+}

@@ -21,3 +21,20 @@ misconfigurations:
       Interface VPC endpoints for every service would cost about $5/day, more than the rest of the
       stack. Upgrade path: interface endpoints or an egress firewall with a domain allow-list.
     expired_at: 2027-04-24
+
+  - id: AWS-0054
+    paths:
+      - terraform/modules/service/alb.tf
+    statement: >-
+      The ALB listens on plain HTTP because there is no domain to issue an ACM certificate for.
+      The API carries no credentials or personal data. Upgrade path: an ACM certificate, an HTTPS
+      listener and a redirect from port 80.
+    expired_at: 2027-04-24
+
+  - id: AWS-0053
+    paths:
+      - terraform/modules/service/alb.tf
+    statement: >-
+      The ALB is the public entry point of the API by design. Tasks and the database sit in private
+      subnets behind it, reachable only through their security group references.
+    expired_at: 2027-04-24

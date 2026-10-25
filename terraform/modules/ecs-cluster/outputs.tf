@@ -11,6 +11,8 @@ output "cluster_arn" {
 output "capacity_provider_name" {
   description = "Capacity provider the service must use (capacity_provider_strategy)."
   value       = aws_ecs_capacity_provider.hosts.name
+  # A service can only use a capacity provider once it is associated with the cluster.
+  depends_on = [aws_ecs_cluster_capacity_providers.this]
 }
 
 output "host_security_group_id" {
