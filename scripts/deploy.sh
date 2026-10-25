@@ -16,6 +16,8 @@ POLL_SECONDS=10
 
 # The Windows AWS CLI ends lines with CRLF, which breaks the comparisons below.
 aws_text() { aws "$@" --output text | tr -d '\r'; }
+# Git Bash would rewrite the SSM parameter name (/taskflow-prod/...) into a Windows path.
+export MSYS_NO_PATHCONV=1
 
 # The service's subnets and security group are the only ones that can reach the database.
 network="$(aws ecs describe-services --cluster "$cluster" --services "$service" \
