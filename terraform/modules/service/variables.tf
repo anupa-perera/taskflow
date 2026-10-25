@@ -23,6 +23,11 @@ variable "cluster_arn" {
   type        = string
 }
 
+variable "cluster_name" {
+  description = "Name of that cluster, for Service Auto Scaling and CloudWatch dimensions."
+  type        = string
+}
+
 variable "capacity_provider_name" {
   description = "Capacity provider that places tasks on the cluster's hosts."
   type        = string
@@ -55,20 +60,8 @@ variable "database" {
   })
 }
 
-variable "task_cpu" {
-  description = "API task CPU units (1024 = one vCPU); the vertical scaling mechanism changes it."
-  type        = number
-  default     = 256
-}
-
-variable "task_memory_mib" {
-  description = "API task memory; the vertical scaling mechanism changes it."
-  type        = number
-  default     = 512
-}
-
 variable "desired_count" {
-  description = "API tasks to run; two keeps one per AZ."
+  description = "API tasks to start with; Service Auto Scaling owns the count afterwards."
   type        = number
   default     = 2
 }

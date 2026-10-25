@@ -27,3 +27,8 @@ output "app_secret_arn" {
   description = "Restricted API credentials (username, password)."
   value       = aws_secretsmanager_secret.app.arn
 }
+
+output "identifier" {
+  description = "RDS instance identifier, the DBInstanceIdentifier CloudWatch dimension."
+  value       = aws_db_instance.this.identifier
+}

@@ -37,3 +37,12 @@ output "log_group_name" {
   description = "Log group of the API and migration tasks."
   value       = aws_cloudwatch_log_group.tasks.name
 }
+
+output "vertical_scaling" {
+  description = "What drives vertical scaling: the alarm, the Lambda it invokes and the size it records."
+  value = {
+    alarm_name          = aws_cloudwatch_composite_alarm.api_vertical_scale.alarm_name
+    function_name       = aws_lambda_function.vertical_scaler.function_name
+    task_size_parameter = aws_ssm_parameter.api_task_size.name
+  }
+}
