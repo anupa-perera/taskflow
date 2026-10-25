@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+# Hosts have no SSH ingress (access is through Session Manager); this keeps sshd safe regardless.
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+PermitRootLogin no
+X11Forwarding no
+MaxAuthTries 3

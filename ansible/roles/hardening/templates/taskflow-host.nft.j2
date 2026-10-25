@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+# Replaces only this table, atomically: declaring it first makes the delete safe when it is absent.
+table inet taskflow_host
+delete table inet taskflow_host
+
+table inet taskflow_host {
+  chain input {
+    type filter hook input priority filter; policy drop;
+
+    iifname "lo" accept
+    ct state established,related accept
+    ct state invalid drop
+    # Containers reach the ECS agent on these bridges: task metadata and credentials (DNAT to
+    # 127.0.0.1:51679) and agent introspection (51678).
+    iifname { "docker0", "ecs-bridge" } accept
+    meta l4proto { icmp, ipv6-icmp } accept
+    # DHCPv4 lease renewals.
+    udp sport 67 udp dport 68 accept
+  }
+}

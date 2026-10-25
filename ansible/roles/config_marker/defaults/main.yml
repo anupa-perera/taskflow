@@ -1,0 +1,3 @@
+# Applying a config (a restart or reload) only after a change is what handlers do, but a handler is
+# forgotten when a run fails before it fires. A marker written after a successful apply is not.
+config_marker_dir: /var/lib/taskflow

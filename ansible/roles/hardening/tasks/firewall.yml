@@ -1,0 +1,60 @@
+# A separate nftables table, loaded by its own unit. The packaged nftables.service flushes the whole
+# ruleset on stop and reload, which would also delete the Docker and ECS rules (iptables-nft).
+- name: Install nftables
+  ansible.builtin.dnf:
+    name: nftables
+    state: present
+
+- name: Write the host firewall rules
+  ansible.builtin.template:
+    src: taskflow-host.nft.j2
+    dest: /etc/nftables/taskflow-host.nft
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/nft -c -f %s
+
+- name: Install the host firewall unit
+  ansible.builtin.template:
+    src: taskflow-host-firewall.service.j2
+    dest: /etc/systemd/system/taskflow-host-firewall.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Enable the host firewall
+  ansible.builtin.systemd_service:
+    name: taskflow-host-firewall.service
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Check whether the loaded rules are current
+  ansible.builtin.include_role:
+    name: config_marker
+    tasks_from: check
+  vars:
+    config_marker_name: host-firewall
+    config_marker_files:
+      - /etc/nftables/taskflow-host.nft
+      - /etc/systemd/system/taskflow-host-firewall.service
+
+- name: Load the current host firewall rules
+  when: config_marker_check.rc == 1
+  block:
+    # Atomic: the rules file replaces the table in one transaction.
+    - name: Reload the host firewall
+      ansible.builtin.systemd_service:
+        name: taskflow-host-firewall.service
+        state: reloaded
+        daemon_reload: true
+
+    - name: Record the rules now loaded
+      ansible.builtin.include_role:
+        name: config_marker
+        tasks_from: record
+      vars:
+        config_marker_name: host-firewall
+        config_marker_files:
+          - /etc/nftables/taskflow-host.nft
+          - /etc/systemd/system/taskflow-host-firewall.service

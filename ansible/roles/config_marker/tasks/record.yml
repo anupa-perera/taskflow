@@ -1,0 +1,10 @@
+# Call only after the config has been applied successfully; a failure before this keeps it pending.
+# pipefail: a failed read must not record the checksum of nothing.
+- name: Record the applied config for {{ config_marker_name }}
+  ansible.builtin.shell: >-
+    set -o pipefail
+    && install -d -m 0755 {{ config_marker_dir }}
+    && cat {{ config_marker_files | join(' ') }} | sha256sum > {{ config_marker_dir }}/{{ config_marker_name }}.applied
+  args:
+    executable: /bin/bash
+  changed_when: true

@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+[commands]
+upgrade_type = security
+download_updates = yes
+apply_updates = yes
+# The timer already adds a random delay, so hosts do not all update at once.
+random_sleep = 0
+
+[emitters]
+emit_via = stdio
+
+[base]
+# Upgrading these restarts Docker (and every task on the host) or needs a reboot. They arrive with
+# a new ECS-optimized AMI instead, through the ASG instance refresh, which drains each host first.
+exclude = {{ hardening_update_exclusions | join(' ') }}

@@ -1,0 +1,42 @@
+- name: Configure the ECS container agent
+  ansible.builtin.lineinfile:
+    path: /etc/ecs/ecs.config
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ ecs_agent_settings | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Run the ECS agent
+  ansible.builtin.systemd_service:
+    name: ecs
+    enabled: true
+    state: started
+
+- name: Check whether the agent runs the current ecs.config
+  ansible.builtin.include_role:
+    name: config_marker
+    tasks_from: check
+  vars:
+    config_marker_name: ecs-agent
+    config_marker_files: [/etc/ecs/ecs.config]
+
+# Restarting the agent leaves running tasks alone; settings apply to tasks started afterwards.
+- name: Restart the ECS agent with the current ecs.config
+  when: config_marker_check.rc == 1
+  block:
+    - name: Restart the ECS agent
+      ansible.builtin.systemd_service:
+        name: ecs
+        state: restarted
+
+    - name: Record the ecs.config the agent now runs
+      ansible.builtin.include_role:
+        name: config_marker
+        tasks_from: record
+      vars:
+        config_marker_name: ecs-agent
+        config_marker_files: [/etc/ecs/ecs.config]
