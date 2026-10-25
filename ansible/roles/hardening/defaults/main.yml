@@ -1,0 +1,6 @@
+hardening_update_exclusions:
+  - docker*
+  - containerd*
+  - runc*
+  - ecs-init*
+  - kernel*

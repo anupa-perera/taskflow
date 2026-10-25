@@ -1,0 +1,52 @@
+- name: Install the CloudWatch agent
+  ansible.builtin.dnf:
+    name: amazon-cloudwatch-agent
+    state: present
+
+- name: Create the CloudWatch agent config directory
+  ansible.builtin.file:
+    path: "{{ cloudwatch_agent_config_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure the CloudWatch agent
+  ansible.builtin.copy:
+    dest: "{{ cloudwatch_agent_config_path }}"
+    content: "{{ cloudwatch_agent_config | to_nice_json }}\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Check whether the agent runs the current config
+  ansible.builtin.include_role:
+    name: config_marker
+    tasks_from: check
+  vars:
+    config_marker_name: cloudwatch-agent
+    config_marker_files: ["{{ cloudwatch_agent_config_path }}"]
+
+- name: Load the CloudWatch agent config
+  when: config_marker_check.rc == 1
+  block:
+    # Translates the JSON into the agent's own config and (re)starts it.
+    - name: Load the config into the agent
+      ansible.builtin.command: >-
+        /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl
+        -a fetch-config -m ec2 -s -c file:{{ cloudwatch_agent_config_path }}
+      changed_when: true
+
+    - name: Record the config the agent now runs
+      ansible.builtin.include_role:
+        name: config_marker
+        tasks_from: record
+      vars:
+        config_marker_name: cloudwatch-agent
+        config_marker_files: ["{{ cloudwatch_agent_config_path }}"]
+
+- name: Run the CloudWatch agent at boot
+  ansible.builtin.systemd_service:
+    name: amazon-cloudwatch-agent
+    enabled: true
+    state: started

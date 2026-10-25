@@ -1,0 +1,31 @@
+# The drain marker exists from just before this role drains a host until it is ACTIVE again, so a
+# run that failed in between (even on the ACTIVE call itself) is finished by the next one.
+- name: Look for a drain this role started
+  ansible.builtin.stat:
+    path: "{{ docker_drain_marker }}"
+  register: docker_drain_pending
+
+- name: Return the container instance to service
+  when: docker_drain_pending.stat.exists
+  block:
+    - name: Read which container instance was drained
+      ansible.builtin.slurp:
+        src: "{{ docker_drain_marker }}"
+      register: docker_drain_owner
+
+    # The CLI exits 0 even when ECS reports a per-instance failure, so the response is checked.
+    - name: Set the container instance ACTIVE
+      ansible.builtin.command: >-
+        aws ecs update-container-instances-state
+        {{ docker_drain_owner.content | b64decode | trim }} --status ACTIVE
+        --query '[length(failures), containerInstances[0].status]' --output text
+      delegate_to: localhost
+      become: false
+      register: docker_reactivated
+      changed_when: true
+      failed_when: docker_reactivated.rc != 0 or docker_reactivated.stdout.split() != ['0', 'ACTIVE']
+
+    - name: Forget the drain
+      ansible.builtin.file:
+        path: "{{ docker_drain_marker }}"
+        state: absent

@@ -1,0 +1,27 @@
+# AL2023 repositories are versioned; dnf only sees updates published for the pinned release.
+- name: Pin the AL2023 release dnf installs from
+  ansible.builtin.copy:
+    dest: /etc/dnf/vars/releasever
+    content: "{{ al2023_release }}\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Install dnf-automatic
+  ansible.builtin.dnf:
+    name: dnf-automatic
+    state: present
+
+- name: Configure dnf-automatic
+  ansible.builtin.template:
+    src: automatic.conf.j2
+    dest: /etc/dnf/automatic.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Run dnf-automatic daily
+  ansible.builtin.systemd_service:
+    name: dnf-automatic.timer
+    enabled: true
+    state: started

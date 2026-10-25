@@ -1,0 +1,40 @@
+# Outside the agent's own etc/ directory: fetch-config deletes the default-path JSON after loading it,
+# which would make every run rewrite it and restart the agent.
+cloudwatch_agent_config_path: /etc/taskflow/cloudwatch-agent.json
+# Checksum of the config the agent last loaded successfully.
+cloudwatch_agent_applied_marker: /var/lib/taskflow/cloudwatch-agent.applied
+
+# EC2 reports CPU and network itself; memory and disk are only visible from inside the host.
+cloudwatch_agent_config:
+  agent:
+    metrics_collection_interval: 60
+  metrics:
+    namespace: "{{ host_metrics_namespace }}"
+    append_dimensions:
+      AutoScalingGroupName: "${aws:AutoScalingGroupName}"
+      InstanceId: "${aws:InstanceId}"
+    aggregation_dimensions:
+      - [AutoScalingGroupName]
+    metrics_collected:
+      mem:
+        measurement: [mem_used_percent]
+      disk:
+        measurement: [used_percent]
+        resources: [/]
+        drop_device: true
+  logs:
+    logs_collected:
+      files:
+        collect_list: "{{ cloudwatch_agent_log_files | map('combine', {'log_group_name': host_log_group}) }}"
+
+cloudwatch_agent_log_files:
+  - file_path: /var/log/ecs/ecs-agent.log
+    log_stream_name: "{instance_id}/ecs-agent"
+  - file_path: /var/log/ecs/ecs-init.log
+    log_stream_name: "{instance_id}/ecs-init"
+  # Which task fetched which IAM credentials, and when.
+  - file_path: /var/log/ecs/audit.log
+    log_stream_name: "{instance_id}/ecs-audit"
+  # Package changes, including those dnf-automatic makes.
+  - file_path: /var/log/dnf.rpm.log
+    log_stream_name: "{instance_id}/dnf"

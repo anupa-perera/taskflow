@@ -34,3 +34,13 @@ output "autoscaling_group_name" {
   description = "Auto Scaling Group of the ECS hosts."
   value       = aws_autoscaling_group.hosts.name
 }
+
+output "host_metrics_namespace" {
+  description = "CloudWatch namespace the hosts' CloudWatch agent may publish to."
+  value       = local.host_metrics_namespace
+}
+
+output "ansible_transfer_bucket" {
+  description = "S3 bucket the Ansible aws_ssm connection moves module files through."
+  value       = aws_s3_bucket.ansible_transfer.bucket
+}

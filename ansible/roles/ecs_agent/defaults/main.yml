@@ -1,0 +1,15 @@
+# Merged into /etc/ecs/ecs.config key by key; keys not listed (from the AMI or user data) are kept.
+# Only settings the agent re-reads on restart: registered resources (ECS_RESERVED_MEMORY) cannot
+# change after the instance has registered.
+ecs_agent_settings:
+  ECS_CLUSTER: "{{ ecs_cluster_name }}"
+  # Containers cannot reach the host's instance metadata, and so not its IAM role.
+  ECS_AWSVPC_BLOCK_IMDS: "true"
+  ECS_DISABLE_PRIVILEGED: "true"
+  # Images are tagged with immutable commit SHAs, so a cached image is always the right one.
+  ECS_IMAGE_PULL_BEHAVIOR: once
+  # Default 3h; stopped tasks' containers and images fill the 30 GB root volume sooner.
+  ECS_ENGINE_TASK_CLEANUP_WAIT_DURATION: 1h
+
+# Checksum of the ecs.config the agent was last restarted with.
+ecs_agent_applied_marker: /var/lib/taskflow/ecs-agent.applied
