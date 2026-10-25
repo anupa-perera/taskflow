@@ -18,7 +18,8 @@ terraform_output() { "$repo_root/scripts/terraform.sh" "$STACK" "$@" </dev/null;
 trap 'rm -f "$repo_root/$STACK/$PLAN_FILE"' EXIT
 
 # Same values in both steps, so the destroy sees the unlocked, snapshot-free configuration.
-unlock=(-var database_deletion_protection=false -var database_final_snapshot=false)
+# Destroy never uses the image, but image_tag is required; any valid SHA satisfies it.
+unlock=(-var database_deletion_protection=false -var database_final_snapshot=false -var image_tag=0000000)
 
 # A separate assignment, so a failed lookup (credentials, backend) stops here instead of
 # looking like "no database".
@@ -29,6 +30,7 @@ if grep -Fqx "$DB" <<<"$state_entries"; then
   terraform plan -input=false -target="$DB" "${unlock[@]}" -out="$PLAN_FILE"
   # An unlock may only change settings in place. A create or replace here would build a new
   # database (and its dependencies) just to destroy it.
+  # shellcheck disable=SC2016 # The single-quoted program is JavaScript, not shell.
   terraform_output show -json "$PLAN_FILE" | node -e '
     let raw = "";
     process.stdin.on("data", (chunk) => (raw += chunk)).on("end", () => {
